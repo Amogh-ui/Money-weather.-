@@ -92,8 +92,10 @@ function ScreenFrame({ children, nav, onNavigate }: { children: ReactNode; nav?:
 
 function BrandMark({ size = 16 }: { size?: number }) {
   return (
-    <svg width={size} height={Math.round(size * 0.7)} viewBox="0 0 100 70" fill="none" aria-hidden="true">
-      <path d="M8 62 L30 8 L50 45 L70 8 L92 62" stroke="currentColor" strokeWidth={16} strokeLinejoin="miter" strokeLinecap="butt" strokeMiterlimit={20} />
+    <svg width={size} height={Math.round(size * 1.1)} viewBox="0 0 100 110" fill="currentColor" aria-hidden="true">
+      <path d="M8 100 L8 55 Q10 20 42 10 L42 100 Z" opacity={1} />
+      <path d="M50 100 L50 48 L68 48 L68 100 Z" opacity={0.7} />
+      <path d="M76 100 L76 62 L94 62 L94 100 Z" opacity={0.45} />
     </svg>
   );
 }
@@ -173,7 +175,7 @@ export default function HomePage() {
   const screens = useMemo(() => [
     <ScreenFrame key="salary" onNavigate={navTo}>
       <div className="salary-screen">
-        <header className="brand-row"><div className="brand-mark"><BrandMark size={16} /></div><span>Money Weather</span></header>
+        <header className="brand-row"><div className="brand-mark"><BrandMark size={16} /></div><span>ITITI Bank</span></header>
         <div className="salary-copy"><p className="eyebrow">Your first salary is here.</p><h1>₹60,000</h1><div className="salary-meta"><span>Aster Labs</span><span>17 Sep 2026</span></div></div>
         <div className="opening-atmosphere"><Atmosphere condition="Stable" /><span className="section-kicker">Financial horizon <i /> Calm</span></div>
         <div className="arrival-note"><span className="note-index">01</span><p>We’ll separate what you can use from money that’s already spoken for.</p></div>
@@ -219,7 +221,7 @@ export default function HomePage() {
         <header className="home-header"><div><p>Good morning,</p><h2>Amogh.</h2></div><button className="icon-button avatar-button" aria-label="Profile">A</button></header>
         <section className="weather-hero">
           <Atmosphere condition={condition} />
-          <div className="weather-copy"><span className="section-kicker">Money Weather <i /> Now</span><h1>{condition}.</h1><p>{condition === "Stable" ? "Your money has room." : condition === "Tightening" ? "Your spending is moving ahead of the week." : "Continuing at this pace may affect upcoming commitments."}</p></div>
+          <div className="weather-copy"><span className="section-kicker">ITITI Bank <i /> Now</span><h1>{condition}.</h1><p>{condition === "Stable" ? "Your money has room." : condition === "Tightening" ? "Your spending is moving ahead of the week." : "Continuing at this pace may affect upcoming commitments."}</p></div>
           <div className="safe-line"><span className="metric-label">Safe to use</span><b>{inr(availableSafe)}</b></div>
         </section>
         <section className="home-pace"><PaceTrack spent={spent} boundary={boundary} /><p>You are still covered, but UPI spending is moving faster than the week.</p></section>
@@ -288,11 +290,11 @@ export default function HomePage() {
 
   return (
     <main className="stage">
-      <section className="phone" aria-label="Money Weather mobile prototype">
+      <section className="phone" aria-label="ITITI Bank mobile prototype">
         <div className="screen-transition" key={screen}>{screens[screen]}</div>
       </section>
       <aside className="prototype-rail" aria-label="Prototype screens">
-        <span>Money Weather</span><p>{String(screen + 1).padStart(2, "0")} / 08</p>
+        <span>ITITI Bank</span><p>{String(screen + 1).padStart(2, "0")} / 08</p>
         <div>{Array.from({ length: 8 }, (_, index) => <button key={index} className={screen === index ? "active" : ""} onClick={() => setScreen(index)} aria-label={`Go to screen ${index + 1}`} />)}</div>
         <small>Use the dots to inspect any screen.</small>
       </aside>
@@ -366,9 +368,9 @@ export default function HomePage() {
           {recommendationView === "confirmed" && <div className="confirmation-state">
             <span className="confirmation-icon"><Check size={22} /></span>
             <SheetTitle>₹2,000 credit is now active</SheetTitle>
-            <SheetDescription>Pace Card is active. Your Money Weather stays {condition}, and {inr(availableSafe)} is now available to spend this week.</SheetDescription>
+            <SheetDescription>Pace Card is active. Your ITITI Bank stays {condition}, and {inr(availableSafe)} is now available to spend this week.</SheetDescription>
             <div className="confirmation-summary"><span>Credit added</span><b>{inr(PRODUCT_AMOUNT)}</b><small>Auto-repaid from your next salary</small></div>
-            <button className="primary-button" onClick={() => { setRecommendationView(null); if (creditReviewPending) { setCreditReviewPending(false); setScreen(7); } else { setScreen(3); } }}>{creditReviewPending ? "See review" : "Back to Money Weather"}</button>
+            <button className="primary-button" onClick={() => { setRecommendationView(null); if (creditReviewPending) { setCreditReviewPending(false); setScreen(7); } else { setScreen(3); } }}>{creditReviewPending ? "See review" : "Back to ITITI Bank"}</button>
           </div>}
         </SheetContent>
       </Sheet>

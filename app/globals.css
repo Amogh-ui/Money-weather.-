@@ -699,8 +699,8 @@ button:focus-visible, input:focus-visible {
 /* ─── Home Screen ────────────────────────────────────────────────── */
 .home-screen { padding-top: 30px; }
 .home-header { display: flex; align-items: center; justify-content: space-between; }
-.home-header p { margin: 0; color: var(--text-tertiary); font-size: 11px; letter-spacing: 0.02em; font-weight: 400; }
-.home-header h2 { margin: 1px 0 0; font-size: 14px; font-weight: 700; }
+.home-header p { margin: 0; color: var(--text-tertiary); font-size: 11px; letter-spacing: 0.02em; line-height: 1.4; font-weight: 400; }
+.home-header h2 { margin: 4px 0 0; font-size: 20px; line-height: 1.25; letter-spacing: -0.01em; font-weight: 700; }
 
 .weather-hero {
   position: relative;
@@ -910,8 +910,6 @@ button:focus-visible, input:focus-visible {
   position: relative;
   width: 220px;
   height: 220px;
-  border-radius: 24px;
-  overflow: hidden;
   background: rgba(255, 255, 255, 0.02);
 }
 .scan-frame .corner {

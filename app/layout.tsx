@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Money Weather",
+  title: "ITITI Bank",
   description: "See what is safe to use and whether your UPI spending is moving faster than your week.",
   icons: {
     icon: "/favicon.svg",
