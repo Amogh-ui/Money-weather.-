@@ -312,16 +312,18 @@ export default function HomePage() {
             <SheetTitle className="recommendation-title">Pace Card</SheetTitle>
             <SheetDescription className="recommendation-description">A ₹2,000 buffer credit for this week, automatically settled from your next salary.</SheetDescription>
 
-            <section className="recommendation-lead"><h3>Why this appeared</h3><p>Your UPI spending has used {usedPercent}% of its weekly boundary while {WEEK_PROGRESS}% of the week has passed. Your commitments remain covered, so this suggestion offers a short-term credit buffer instead of cutting into money you’ve already planned.</p></section>
-            <Accordion type="single" collapsible className="dark-accordion recommendation-calculation"><AccordionItem value="product-calculation"><AccordionTrigger>See calculation</AccordionTrigger><AccordionContent><p className="accordion-copy">Safe to use is {inr(availableBeforeProduct)} this week. Activating Pace Card adds a {inr(PRODUCT_AMOUNT)} credit buffer, taking what you can spend to {inr(productRemainingSafe)}. Your UPI boundary stays {inr(boundary)}, and the {inr(PRODUCT_AMOUNT)} is repaid automatically when your next salary arrives.</p></AccordionContent></AccordionItem></Accordion>
-
-            <div className="benefit-pair">
-              <section><h3>What you gain</h3><ul><li>₹2,000 of extra spending room for this week.</li><li>No interest if repaid in full on your next salary date.</li><li>Nothing changes about how you already pay with UPI.</li></ul></section>
-              <section><h3>How the bank gains</h3><ul><li>Interest applies if the balance carries beyond the repayment date.</li><li>The bank earns interchange fees on card transactions.</li><li>It builds your usage history for future credit products.</li></ul></section>
+            <div className="pace-card-visual" aria-hidden="true">
+              <div className="pace-card-visual-top"><span className="pace-card-chip" /><CreditCard size={20} /></div>
+              <div className="pace-card-visual-amount">{inr(PRODUCT_AMOUNT)}</div>
+              <div className="pace-card-visual-foot"><span>Weekly buffer</span><span>Auto-repaid on salary day</span></div>
             </div>
 
-            <section className="recommendation-section"><h3>Costs and limitations</h3><ul><li>Unpaid balances after the due date start accruing interest.</li><li>Using the full buffer regularly can affect your credit utilization.</li><li>Approval depends on your existing credit eligibility.</li><li>The outcome depends on repaying it on time.</li></ul></section>
-            <section className="recommendation-section"><h3>Your other options</h3><ol><li>Slow UPI spending.</li><li>Adjust the boundary.</li><li>Wait for your next salary without extra credit.</li><li>Make no change.</li></ol></section>
+            <section className="recommendation-lead"><h3>Why this appeared</h3><p>Your UPI spending has used {usedPercent}% of its weekly boundary while {WEEK_PROGRESS}% of the week has passed. This offers a short-term credit buffer instead of cutting into money you’ve already planned.</p></section>
+
+            <div className="benefit-pair">
+              <section><h3>What you gain</h3><ul><li>₹2,000 of extra spending room this week.</li><li>No interest if repaid in full on salary date.</li></ul></section>
+              <section><h3>How the bank gains</h3><ul><li>Interest if the balance carries over.</li><li>Builds your credit usage history.</li></ul></section>
+            </div>
 
             <div className="recommendation-actions"><button className="primary-button" onClick={() => setRecommendationView("review")}>Review card terms</button><button className="quiet-button" onClick={() => setRecommendationView(null)}>Not now</button><button className="text-button" onClick={() => { setRecommendationDismissed(true); setRecommendationView(null); }}>Don’t show this again</button></div>
           </>}

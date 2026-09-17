@@ -1145,10 +1145,10 @@ button:focus-visible, input:focus-visible {
 .product-entry {
   margin-top: 18px;
   padding: 16px;
-  border: 1px solid var(--border-default);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: var(--radius-lg);
-  background: var(--surface-1);
-  box-shadow: var(--shadow-card);
+  background: linear-gradient(135deg, var(--aqua) 0%, #00e6b8 50%, #00ccaa 100%);
+  box-shadow: 0 4px 24px rgba(0, 255, 204, 0.2), var(--shadow-card);
 }
 .product-entry-label,
 .optional-product-heading,
@@ -1171,15 +1171,17 @@ button:focus-visible, input:focus-visible {
 .product-entry-label svg,
 .optional-product-heading svg,
 .sheet-product-label svg { color: var(--text-tertiary); }
-.product-entry h3 { margin: 13px 0 7px; font-size: 14px; line-height: 1.2; font-weight: 700; }
-.product-entry > p { margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.55; }
+.product-entry-label { color: var(--background); }
+.product-entry-label svg { color: rgba(5, 5, 7, 0.6); }
+.product-entry h3 { margin: 13px 0 7px; font-size: 14px; line-height: 1.2; font-weight: 700; color: var(--background); }
+.product-entry > p { margin: 0; color: rgba(5, 5, 7, 0.72); font-size: 14px; line-height: 1.55; }
 .product-entry-actions { display: flex; align-items: center; gap: 14px; margin-top: 11px; }
 .product-entry-actions button {
   min-height: 44px;
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--text-tertiary);
+  color: rgba(5, 5, 7, 0.55);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -1187,8 +1189,8 @@ button:focus-visible, input:focus-visible {
   transition-duration: .18s;
   transition-timing-function: ease;
 }
-.product-entry-actions button:first-child { display: flex; align-items: center; gap: 6px; color: var(--aqua); }
-.product-entry-actions button:hover { color: var(--text-primary); }
+.product-entry-actions button:first-child { display: flex; align-items: center; gap: 6px; color: var(--background); }
+.product-entry-actions button:hover { color: var(--background); }
 .product-entry-actions button:active { transform: scale(.96); }
 
 /* ─── Options Screen ─────────────────────────────────────────────── */
@@ -1319,6 +1321,61 @@ button:focus-visible, input:focus-visible {
   font-size: 14px !important;
   line-height: 1.5 !important;
 }
+.pace-card-visual {
+  position: relative;
+  margin-top: 19px;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  aspect-ratio: 1.6 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(150deg, var(--surface-2) 0%, var(--surface-0) 70%);
+  border: 1px solid var(--border-prominent);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 255, 204, 0.08);
+  overflow: hidden;
+}
+.pace-card-visual::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 70%;
+  height: 140%;
+  background: radial-gradient(ellipse, rgba(0, 255, 204, 0.16), transparent 65%);
+  pointer-events: none;
+}
+.pace-card-visual-top { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; color: var(--text-tertiary); }
+.pace-card-chip {
+  width: 34px;
+  height: 24px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #d8dee2, #9aa5ab);
+  position: relative;
+}
+.pace-card-chip::before, .pace-card-chip::after { content: ""; position: absolute; left: 0; right: 0; height: 1px; background: rgba(0, 0, 0, 0.25); }
+.pace-card-chip::before { top: 33%; }
+.pace-card-chip::after { top: 66%; }
+.pace-card-visual-amount {
+  position: relative;
+  z-index: 1;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.pace-card-visual-foot {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--text-tertiary);
+}
+.pace-card-visual-foot span:first-child { color: var(--text-secondary); font-weight: 500; }
 .recommendation-lead,
 .recommendation-section {
   margin-top: 19px;
