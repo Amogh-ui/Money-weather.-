@@ -79,7 +79,7 @@ function BottomNav({ active, onNavigate }: { active: "home" | "activity" | "plan
     <nav className="bottom-nav" aria-label="Main navigation">
       {items.map(({ id, label, icon: Icon }) => (
         <button key={id} className={active === id ? "active" : ""} onClick={() => onNavigate(id)} aria-label={label} aria-current={active === id ? "page" : undefined}>
-          <Icon size={19} /><span>{label}</span>
+          <Icon size={20} />
         </button>
       ))}
     </nav>
