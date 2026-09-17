@@ -12,11 +12,13 @@ import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle } from "@
 
 type Condition = "Stable" | "Tightening" | "Under Pressure";
 type RouteChoice = "slow" | "adjust" | "none" | null;
+type RecommendationView = "detail" | "compare" | "review" | "confirmed" | null;
 
 const SALARY = 60000;
 const SAVINGS = 12000;
 const BASE_SPENT = 4800;
 const WEEK_PROGRESS = 57;
+const PRODUCT_AMOUNT = 2000;
 
 const inr = (value: number) => `₹${Math.round(value).toLocaleString("en-IN")}`;
 
@@ -99,13 +101,19 @@ export default function HomePage() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [choice, setChoice] = useState<RouteChoice>(null);
   const [reviewChoice, setReviewChoice] = useState<"keep" | "adjust" | "pause">("keep");
+  const [recommendationView, setRecommendationView] = useState<RecommendationView>(null);
+  const [recommendationDismissed, setRecommendationDismissed] = useState(false);
+  const [savingsActivated, setSavingsActivated] = useState(false);
 
   const commitments = rent + planned + other;
   const safeToUse = Math.max(0, SALARY - SAVINGS - commitments);
-  const availableSafe = Math.max(0, safeToUse - (choice === "adjust" ? Math.max(boundary - 6000, 0) : 0));
+  const availableBeforeProduct = Math.max(0, safeToUse - (choice === "adjust" ? Math.max(boundary - 6000, 0) : 0));
+  const availableSafe = Math.max(0, availableBeforeProduct - (savingsActivated ? PRODUCT_AMOUNT : 0));
   const spent = BASE_SPENT + (paymentDone ? 320 : 0);
   const usedPercent = Math.round((spent / boundary) * 100);
   const condition: Condition = usedPercent <= WEEK_PROGRESS + 8 ? "Stable" : usedPercent <= 100 ? "Tightening" : "Under Pressure";
+  const productRelevant = condition === "Tightening" && !recommendationDismissed && !savingsActivated;
+  const productRemainingSafe = Math.max(0, availableBeforeProduct - PRODUCT_AMOUNT);
 
   const navTo = (where: "home" | "activity" | "plan") => setScreen(where === "home" ? 3 : where === "activity" ? 5 : 6);
   const goHome = () => setScreen(3);
@@ -182,7 +190,7 @@ export default function HomePage() {
         <section className="weather-hero">
           <Atmosphere condition={condition} />
           <div className="weather-copy"><span className="section-kicker">Money Weather <i /> Now</span><h1>{condition}.</h1><p>{condition === "Stable" ? "Your money has room." : condition === "Tightening" ? "Your spending is moving ahead of the week." : "Continuing at this pace may affect upcoming commitments."}</p></div>
-          <div className="safe-line"><span className="metric-label">Safe to use</span><b>{inr(availableSafe)}</b><small>After {inr(commitments)} in commitments{choice === "adjust" ? " and a boundary adjustment" : ""}</small></div>
+          <div className="safe-line"><span className="metric-label">Safe to use</span><b>{inr(availableSafe)}</b><small>After {inr(commitments)} in commitments{choice === "adjust" ? " and a boundary adjustment" : ""}{savingsActivated ? ` · ${inr(PRODUCT_AMOUNT)} separated` : ""}</small></div>
         </section>
         <section className="home-pace"><PaceTrack spent={spent} boundary={boundary} /><p>You are still covered, but UPI spending is moving faster than the week.</p></section>
         <div className="dual-actions"><button onClick={() => setScreen(5)}>What changed? <ArrowRight size={16} /></button><button onClick={() => setScreen(6)}>Review options <ArrowRight size={16} /></button></div>
@@ -203,6 +211,12 @@ export default function HomePage() {
         <div className="payments-group"><div className="section-heading"><span className="section-kicker">Contributing payments</span><b>Grouped, not judged</b></div>{[{ name: "Food & coffee", count: "8 payments", amount: 1640 }, { name: "Travel", count: "11 payments", amount: 1380 }, { name: "Everyday purchases", count: "14 payments", amount: 1780 }].map((item) => <div key={item.name}><span>{item.name}<small>{item.count}</small></span><b>{inr(item.amount)}</b></div>)}</div>
         <div className="estimate-panel"><span className="section-kicker">Estimate</span><strong>+ ₹1,500</strong><p>At the current pace, you may use approximately ₹1,500 more than your selected weekly boundary.</p><small>This is an estimate, not a certainty.</small></div>
         <Accordion type="single" collapsible className="dark-accordion"><AccordionItem value="calculation"><AccordionTrigger>See calculation</AccordionTrigger><AccordionContent><p className="accordion-copy">You used {inr(spent)} across 4 of 7 days. Continuing at a similar daily pace gives a projected weekly total near {inr(boundary + 1500)}. Actual spending may differ.</p></AccordionContent></AccordionItem></Accordion>
+        {productRelevant && <section className="product-entry" aria-label="Flexible Savings Space suggestion">
+          <div className="product-entry-label"><span>Bank product</span><Landmark size={15} /></div>
+          <h3>Keep ₹2,000 away from everyday spending</h3>
+          <p>Your commitments are covered, but your UPI spending is moving ahead of the week.</p>
+          <div className="product-entry-actions"><button onClick={() => setRecommendationView("detail")}>See why <ArrowRight size={15} /></button><button onClick={() => setRecommendationDismissed(true)}>Not interested</button></div>
+        </section>}
       </div>
       <div className="sticky-action"><button className="primary-button" onClick={() => setScreen(6)}>See my options</button></div>
     </ScreenFrame>,
@@ -214,6 +228,16 @@ export default function HomePage() {
           {[{ id: "slow" as const, title: "Slow the pace", lead: "Use up to ₹1,200 more", body: "No boundary change. Your condition may return to Stable.", meta: "No payment restrictions" }, { id: "adjust" as const, title: "Adjust the boundary", lead: "₹6,000 → ₹7,500", body: "Safe to use becomes ₹22,500. The condition stays Tightening.", meta: "Reversible at any time" }, { id: "none" as const, title: "Make no change", lead: "Keep using UPI normally", body: "The app keeps providing feedback. Nothing is blocked.", meta: "No action required" }].map((route) => <button key={route.id} className={`route-panel ${choice === route.id ? "selected" : ""}`} onClick={() => setChoice(route.id)}><span className="route-radio">{choice === route.id && <i />}</span><div><span>{route.title}</span><strong>{route.lead}</strong><p>{route.body}</p><small>{route.meta}</small></div></button>)}
         </div>
         <p className="control-note">Every option keeps you in control and can be changed later.</p>
+        {productRelevant && <section className="optional-product" aria-label="Optional bank product">
+          <div className="optional-product-heading"><span>Optional bank product</span><Landmark size={15} /></div>
+          <h3>Separate ₹2,000 in Flexible Savings Space</h3>
+          <dl>
+            <div><dt>Your benefit</dt><dd>Keeps it away from everyday spending.</dd></div>
+            <div><dt>Bank benefit</dt><dd>Retains the money within a bank savings product.</dd></div>
+            <div><dt>Your control</dt><dd>Accessible and optional.</dd></div>
+          </dl>
+          <button className="quiet-button" onClick={() => setRecommendationView("compare")}>Compare with my other options <ArrowRight size={15} /></button>
+        </section>}
       </div>
       <div className="sticky-action"><button className="primary-button" disabled={!choice} onClick={() => { if (choice === "adjust") setBoundary(7500); setScreen(7); }}>{choice ? "Continue with this route" : "Choose an option"}</button></div>
     </ScreenFrame>,
@@ -230,7 +254,7 @@ export default function HomePage() {
       </div>
       <div className="sticky-action"><button className="primary-button" onClick={goHome}>{reviewChoice === "pause" ? "Pause for next week" : reviewChoice === "adjust" ? "Adjust next week" : "Keep my boundary"}</button></div>
     </ScreenFrame>,
-  ], [availableSafe, boundary, choice, commitments, condition, feedback, other, paymentDone, planned, rent, reviewChoice, safeToUse, spent, usedPercent]);
+  ], [availableSafe, boundary, choice, commitments, condition, feedback, other, paymentDone, planned, productRelevant, rent, reviewChoice, safeToUse, savingsActivated, spent, usedPercent]);
 
   return (
     <main className="stage">
@@ -254,6 +278,67 @@ export default function HomePage() {
           <p className="sheet-message">Your payment went through. You are now using your boundary faster than the week is moving.</p>
           <button className="primary-button" onClick={() => { setSheetOpen(false); setScreen(5); }}>View impact</button>
           <SheetClose asChild><button className="text-button">Dismiss</button></SheetClose>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={recommendationView !== null} onOpenChange={(open) => { if (!open) setRecommendationView(null); }}>
+        <SheetContent side="bottom" showCloseButton={false} className="payment-sheet recommendation-sheet">
+          <div className="sheet-handle" />
+
+          {recommendationView === "detail" && <>
+            <div className="sheet-product-label"><span>Bank product</span><Landmark size={15} /></div>
+            <SheetTitle className="recommendation-title">Flexible Savings Space</SheetTitle>
+            <SheetDescription className="recommendation-description">Separate ₹2,000 from everyday spending while keeping it accessible.</SheetDescription>
+
+            <section className="recommendation-lead"><h3>Why this appeared</h3><p>Your UPI spending has used {usedPercent}% of its weekly boundary while {WEEK_PROGRESS}% of the week has passed. Your commitments remain covered, so this suggestion focuses only on protecting part of your flexible money.</p></section>
+            <Accordion type="single" collapsible className="dark-accordion recommendation-calculation"><AccordionItem value="product-calculation"><AccordionTrigger>See calculation</AccordionTrigger><AccordionContent><p className="accordion-copy">Safe to use is {inr(availableBeforeProduct)} after commitments and planned savings. Separating {inr(PRODUCT_AMOUNT)} would leave {inr(productRemainingSafe)} for everyday use. Your UPI boundary stays {inr(boundary)}.</p></AccordionContent></AccordionItem></Accordion>
+
+            <div className="benefit-pair">
+              <section><h3>What you gain</h3><ul><li>₹2,000 becomes visually separate from everyday spending.</li><li>The money remains available if needed.</li><li>It can reduce unintentional spending.</li></ul></section>
+              <section><h3>How the bank gains</h3><ul><li>The money remains deposited with the bank.</li><li>The bank may benefit from holding and using customer deposits.</li><li>It supports use of the bank’s savings products.</li></ul></section>
+            </div>
+
+            <section className="recommendation-section"><h3>Costs and limitations</h3><ul><li>Your immediately available amount decreases by ₹2,000.</li><li>The product does not prevent you from withdrawing the money.</li><li>Interest and terms must be reviewed before activation.</li><li>The outcome depends on how you use the product.</li></ul></section>
+            <section className="recommendation-section"><h3>Your other options</h3><ol><li>Slow UPI spending.</li><li>Adjust the boundary.</li><li>Leave ₹2,000 untouched manually.</li><li>Make no change.</li></ol></section>
+
+            <div className="recommendation-actions"><button className="primary-button" onClick={() => setRecommendationView("review")}>Review product details</button><button className="quiet-button" onClick={() => setRecommendationView(null)}>Not now</button><button className="text-button" onClick={() => { setRecommendationDismissed(true); setRecommendationView(null); }}>Don’t show this again</button></div>
+          </>}
+
+          {recommendationView === "compare" && <>
+            <div className="sheet-product-label"><span>Option comparison</span><SlidersHorizontal size={15} /></div>
+            <SheetTitle className="recommendation-title">Compare the ways forward</SheetTitle>
+            <SheetDescription className="recommendation-description">The bank product is one option. Nothing is selected here.</SheetDescription>
+            <div className="comparison-list">
+              {[
+                { option: "Slow spending", effect: "Keeps the ₹6,000 boundary", access: "Fully accessible", product: false },
+                { option: "Adjust boundary", effect: "Changes the spending reference", access: "Fully accessible", product: false },
+                { option: "Leave ₹2,000 untouched", effect: "Depends on self-control", access: "Fully accessible", product: false },
+                { option: "Flexible Savings Space", effect: "Separates ₹2,000 from spending", access: "Still accessible", product: true },
+                { option: "Make no change", effect: "No immediate change", access: "Fully accessible", product: false },
+              ].map((item) => <section className="comparison-row" key={item.option}><div><h3>{item.option}</h3><span>{item.product ? "Bank product" : "No bank product"}</span></div><dl><div><dt>Effect</dt><dd>{item.effect}</dd></div><div><dt>Access</dt><dd>{item.access}</dd></div></dl></section>)}
+            </div>
+            <div className="recommendation-actions"><button className="quiet-button" onClick={() => setRecommendationView("detail")}>See product details</button><button className="text-button" onClick={() => setRecommendationView(null)}>Back to my options</button></div>
+          </>}
+
+          {recommendationView === "review" && <>
+            <div className="sheet-product-label"><span>Review before confirming</span><Landmark size={15} /></div>
+            <SheetTitle className="recommendation-title">Flexible Savings Space</SheetTitle>
+            <SheetDescription className="recommendation-description">Nothing is activated until you confirm.</SheetDescription>
+            <div className="review-amount"><span>Amount to separate</span><b>{inr(PRODUCT_AMOUNT)}</b><small>{inr(productRemainingSafe)} remains safe to use</small></div>
+            <dl className="review-details"><div><dt>Accessibility</dt><dd>Withdrawable when needed</dd></div><div><dt>Applicable terms</dt><dd>Review before activation</dd></div><div><dt>UPI</dt><dd>No change to how you pay</dd></div></dl>
+            <div className="benefit-pair review-benefits"><section><h3>Your benefit</h3><p>₹2,000 stays separate from everyday spending while remaining accessible.</p></section><section><h3>Bank benefit</h3><p>The bank retains the money in a savings product and may benefit from holding the deposit.</p></section></div>
+            <Accordion type="single" collapsible className="dark-accordion recommendation-calculation"><AccordionItem value="terms"><AccordionTrigger>Applicable interest and terms</AccordionTrigger><AccordionContent><p className="accordion-copy">The applicable interest and complete product terms should be provided by the bank for review before activation. This prototype does not state a rate or guarantee a return.</p></AccordionContent></AccordionItem></Accordion>
+            <p className="optional-note"><ShieldCheck size={16} />This is optional and does not affect your ability to use UPI.</p>
+            <div className="recommendation-actions"><button className="primary-button" onClick={() => { setSavingsActivated(true); setRecommendationView("confirmed"); }}>Confirm Flexible Savings Space</button><button className="text-button" onClick={() => setRecommendationView("detail")}>Go back</button></div>
+          </>}
+
+          {recommendationView === "confirmed" && <div className="confirmation-state">
+            <span className="confirmation-icon"><Check size={22} /></span>
+            <SheetTitle>₹2,000 is now separated</SheetTitle>
+            <SheetDescription>Flexible Savings Space is active. Your Money Weather stays {condition}, and {inr(availableSafe)} remains safe to use.</SheetDescription>
+            <div className="confirmation-summary"><span>Separated savings</span><b>{inr(PRODUCT_AMOUNT)}</b><small>Accessible if you need it</small></div>
+            <button className="primary-button" onClick={() => { setRecommendationView(null); setScreen(3); }}>Back to Money Weather</button>
+          </div>}
         </SheetContent>
       </Sheet>
     </main>
