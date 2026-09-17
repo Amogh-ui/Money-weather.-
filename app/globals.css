@@ -246,15 +246,6 @@ button:focus-visible, input:focus-visible {
   position: relative;
   z-index: 10;
 }
-.topbar::after {
-  content: "";
-  position: absolute;
-  left: 22px;
-  right: 22px;
-  bottom: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border-subtle) 20%, var(--border-subtle) 80%, transparent);
-}
 .topbar-title {
   text-align: center;
   font-size: 13px;
@@ -262,13 +253,6 @@ button:focus-visible, input:focus-visible {
   letter-spacing: 0.02em;
 }
 .topbar-spacer { width: 42px; }
-.step-label {
-  justify-self: end;
-  color: var(--text-quaternary);
-  font-size: 10px;
-  letter-spacing: .12em;
-  font-weight: 400;
-}
 
 /* ─── Shared Components ──────────────────────────────────────────── */
 .icon-button {
@@ -396,8 +380,6 @@ button:focus-visible, input:focus-visible {
   background: var(--surface-1);
   box-shadow: 0 0 16px var(--aqua-glow);
 }
-.brand-row .step-label { margin-left: auto; }
-
 .salary-copy { margin-top: clamp(48px, 7.5vh, 72px); }
 .salary-copy h1 {
   margin: 0;
@@ -790,21 +772,17 @@ button:focus-visible, input:focus-visible {
   left: 22px;
   right: 22px;
   bottom: 20px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: end;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
-.safe-line > span {
-  align-self: start;
-  color: var(--text-secondary);
-}
+.safe-line > span { color: var(--text-secondary); }
 .safe-line b {
   font-size: 28px;
   letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
 }
-.safe-line small { grid-column: 1 / -1; margin-top: 7px; color: var(--text-secondary); font-size: 12px; font-weight: 400; }
 
 /* ─── Pace Track ─────────────────────────────────────────────────── */
 .home-pace { padding: 22px 0 18px; }
@@ -1160,7 +1138,7 @@ button:focus-visible, input:focus-visible {
 .estimate-panel strong {
   display: block;
   margin: 6px 0;
-  color: var(--accent-warm);
+  color: var(--accent-danger);
   font-size: 27px;
   letter-spacing: -0.02em;
   font-weight: 700;
@@ -1466,6 +1444,9 @@ button:focus-visible, input:focus-visible {
 .estimate-panel > .section-kicker {
   position: relative;
   z-index: 1;
+}
+.estimate-panel > .section-kicker {
+  color: var(--text-primary);
 }
 .review-glow {
   position: absolute;

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   ArrowLeft, ArrowRight, CalendarDays, Check, CircleDollarSign,
   CreditCard, Gauge, Home, Pause, QrCode, ReceiptText, ShieldCheck, SlidersHorizontal,
-  Sparkles, WalletCards, X,
+  WalletCards, X,
 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Slider } from "@/components/ui/slider";
@@ -59,12 +59,12 @@ function PaceTrack({ spent, boundary, mini = false }: { spent: number; boundary:
   );
 }
 
-function TopBar({ title, step, onBack }: { title: string; step: number; onBack?: () => void }) {
+function TopBar({ title, onBack }: { title: string; onBack?: () => void }) {
   return (
     <header className="topbar">
       {onBack ? <button className="icon-button" onClick={onBack} aria-label="Go back"><ArrowLeft size={19} /></button> : <span className="topbar-spacer" />}
       <span className="topbar-title">{title}</span>
-      <span className="step-label">{String(step).padStart(2, "0")} / 08</span>
+      <span className="topbar-spacer" />
     </header>
   );
 }
@@ -88,6 +88,14 @@ function BottomNav({ active, onNavigate }: { active: "home" | "activity" | "plan
 
 function ScreenFrame({ children, nav, onNavigate }: { children: ReactNode; nav?: "home" | "activity" | "plan"; onNavigate: (where: "home" | "activity" | "plan") => void }) {
   return <div className={`screen ${nav ? "with-nav" : ""}`}>{children}{nav && <BottomNav active={nav} onNavigate={onNavigate} />}</div>;
+}
+
+function BrandMark({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={Math.round(size * 0.7)} viewBox="0 0 100 70" fill="none" aria-hidden="true">
+      <path d="M8 62 L30 8 L50 45 L70 8 L92 62" stroke="currentColor" strokeWidth={16} strokeLinejoin="miter" strokeLinecap="butt" strokeMiterlimit={20} />
+    </svg>
+  );
 }
 
 export default function HomePage() {
@@ -157,7 +165,7 @@ export default function HomePage() {
   const screens = useMemo(() => [
     <ScreenFrame key="salary" onNavigate={navTo}>
       <div className="salary-screen">
-        <header className="brand-row"><div className="brand-mark"><Sparkles size={15} /></div><span>Money Weather</span><span className="step-label">01 / 08</span></header>
+        <header className="brand-row"><div className="brand-mark"><BrandMark size={16} /></div><span>Money Weather</span></header>
         <div className="salary-copy"><p className="eyebrow">Your first salary is here.</p><h1>₹60,000</h1><div className="salary-meta"><span>Aster Labs</span><span>17 Sep 2026</span></div></div>
         <div className="opening-atmosphere"><Atmosphere condition="Stable" /><span className="section-kicker">Financial horizon <i /> Calm</span></div>
         <div className="arrival-note"><span className="note-index">01</span><p>We’ll separate what you can use from money that’s already spoken for.</p></div>
@@ -166,7 +174,7 @@ export default function HomePage() {
     </ScreenFrame>,
 
     <ScreenFrame key="commitments" onNavigate={navTo}>
-      <TopBar title="Plan this salary" step={2} onBack={() => setScreen(0)} />
+      <TopBar title="Plan this salary" onBack={() => setScreen(0)} />
       <div className="screen-scroll setup-content">
         <div className="section-intro"><p className="eyebrow">₹60,000 received</p><h2>Give every rupee<br />a little context.</h2></div>
         <div className="allocation" aria-label="Salary allocation">
@@ -186,7 +194,7 @@ export default function HomePage() {
     </ScreenFrame>,
 
     <ScreenFrame key="boundary" onNavigate={navTo}>
-      <TopBar title="UPI Boundary" step={3} onBack={() => setScreen(1)} />
+      <TopBar title="UPI Boundary" onBack={() => setScreen(1)} />
       <div className="screen-scroll setup-content boundary-screen">
         <div className="boundary-hero"><p className="eyebrow">Weekly boundary</p><h2>{inr(boundary)}</h2><p>of {inr(safeToUse)} safe to use</p></div>
         <div className="slider-wrap"><span className="slider-value" style={{ left: `${((boundary - 3000) / 9000) * 100}%` }}>{inr(boundary)}</span><Slider min={3000} max={12000} step={500} value={[boundary]} onValueChange={(value) => setBoundary(value[0])} aria-label="Weekly UPI boundary" /><div className="slider-labels"><span>₹3,000</span><span>₹12,000</span></div></div>
@@ -204,7 +212,7 @@ export default function HomePage() {
         <section className="weather-hero">
           <Atmosphere condition={condition} />
           <div className="weather-copy"><span className="section-kicker">Money Weather <i /> Now</span><h1>{condition}.</h1><p>{condition === "Stable" ? "Your money has room." : condition === "Tightening" ? "Your spending is moving ahead of the week." : "Continuing at this pace may affect upcoming commitments."}</p></div>
-          <div className="safe-line"><span className="metric-label">Safe to use</span><b>{inr(availableSafe)}</b><small>{inr(SALARY)} salary − {inr(SAVINGS)} savings − {inr(commitments)} commitments{choice === "adjust" ? " (boundary adjusted)" : ""}{creditActivated ? ` + ${inr(PRODUCT_AMOUNT)} Pace Card credit` : ""}</small></div>
+          <div className="safe-line"><span className="metric-label">Safe to use</span><b>{inr(availableSafe)}</b></div>
         </section>
         <section className="home-pace"><PaceTrack spent={spent} boundary={boundary} /><p>You are still covered, but UPI spending is moving faster than the week.</p></section>
         {productRelevant && <section className="product-entry" aria-label="Pace Card suggestion">
@@ -232,7 +240,7 @@ export default function HomePage() {
     <ScreenFrame key="payment" nav="home" onNavigate={navTo}><div /></ScreenFrame>,
 
     <ScreenFrame key="changed" nav="activity" onNavigate={navTo}>
-      <TopBar title="What changed" step={6} onBack={goHome} />
+      <TopBar title="What changed" onBack={goHome} />
       <div className="screen-scroll narrative-screen">
         <div className="change-title"><span>Monday</span><b>Stable</b><ArrowRight size={19} /><span>Today</span><b>{condition}</b></div>
         <div className="factor-line">
@@ -246,7 +254,7 @@ export default function HomePage() {
     </ScreenFrame>,
 
     <ScreenFrame key="options" nav="plan" onNavigate={navTo}>
-      <TopBar title="Your options" step={7} onBack={() => setScreen(5)} />
+      <TopBar title="Your options" onBack={() => setScreen(5)} />
       <div className="screen-scroll options-screen"><div className="section-intro"><p className="eyebrow">Three routes. Your call.</p><h2>What feels realistic<br />for this week?</h2></div>
         <div className="route-list">
           {[{ id: "slow" as const, title: "Slow the pace", lead: "Use up to ₹1,200 more", body: "No boundary change. Your condition may return to Stable.", meta: "No payment restrictions" }, { id: "adjust" as const, title: "Adjust the boundary", lead: "₹6,000 → ₹7,500", body: "Safe to use becomes ₹22,500. The condition stays Tightening.", meta: "Reversible at any time" }, { id: "none" as const, title: "Make no change", lead: "Keep using UPI normally", body: "The app keeps providing feedback. Nothing is blocked.", meta: "No action required" }].map((route) => <button key={route.id} className={`route-panel ${choice === route.id ? "selected" : ""}`} onClick={() => setChoice(route.id)}><span className="route-radio">{choice === route.id && <i />}</span><div><span>{route.title}</span><strong>{route.lead}</strong><p>{route.body}</p><small>{route.meta}</small></div></button>)}
@@ -257,7 +265,7 @@ export default function HomePage() {
     </ScreenFrame>,
 
     <ScreenFrame key="review" nav="plan" onNavigate={navTo}>
-      <TopBar title="Weekly review" step={8} onBack={() => setScreen(6)} />
+      <TopBar title="Weekly review" onBack={() => setScreen(6)} />
       <div className="screen-scroll review-screen">
         <div className="review-hero"><span className="section-kicker">This week</span><h2>You noticed the shift<br />while there was time.</h2><div className="review-glow" /></div>
         <div className="comparison"><div><span>Boundary</span><b>{inr(boundary)}</b></div><div><span>Actual UPI</span><b>{inr(spent)}</b></div><div className="comparison-line"><i style={{ left: `${WEEK_PROGRESS}%` }} /><em style={{ width: `${Math.min(usedPercent, 100)}%` }} /></div><p><span>{WEEK_PROGRESS}% week progress</span><span>{usedPercent}% spending progress</span></p></div>
