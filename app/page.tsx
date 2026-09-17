@@ -117,7 +117,7 @@ export default function HomePage() {
   const productRelevant = condition === "Tightening" && !recommendationDismissed && !creditActivated;
   const productRemainingSafe = availableBeforeProduct + PRODUCT_AMOUNT;
 
-  const navTo = (where: "home" | "activity" | "plan") => setScreen(where === "home" ? 3 : where === "activity" ? 5 : 6);
+  const navTo = (where: "home" | "activity" | "plan") => setScreen(where === "home" ? 3 : where === "activity" ? 5 : 1);
   const goHome = () => setScreen(3);
 
   useEffect(() => {
@@ -200,11 +200,11 @@ export default function HomePage() {
 
     <ScreenFrame key="home" nav="home" onNavigate={navTo}>
       <div className="screen-scroll home-screen">
-        <header className="home-header"><div><p>Good morning,</p><h2>Amogh.</h2></div><button className="icon-button" aria-label="Plan settings"><SlidersHorizontal size={18} /></button></header>
+        <header className="home-header"><div><p>Good morning,</p><h2>Amogh.</h2></div><button className="icon-button avatar-button" aria-label="Profile">A</button></header>
         <section className="weather-hero">
           <Atmosphere condition={condition} />
           <div className="weather-copy"><span className="section-kicker">Money Weather <i /> Now</span><h1>{condition}.</h1><p>{condition === "Stable" ? "Your money has room." : condition === "Tightening" ? "Your spending is moving ahead of the week." : "Continuing at this pace may affect upcoming commitments."}</p></div>
-          <div className="safe-line"><span className="metric-label">Safe to use</span><b>{inr(availableSafe)}</b><small>After {inr(commitments)} in commitments{choice === "adjust" ? " and a boundary adjustment" : ""}{creditActivated ? ` · ${inr(PRODUCT_AMOUNT)} Pace Card credit added` : ""}</small></div>
+          <div className="safe-line"><span className="metric-label">Safe to use</span><b>{inr(availableSafe)}</b><small>{inr(SALARY)} salary − {inr(SAVINGS)} savings − {inr(commitments)} commitments{choice === "adjust" ? " (boundary adjusted)" : ""}{creditActivated ? ` + ${inr(PRODUCT_AMOUNT)} Pace Card credit` : ""}</small></div>
         </section>
         <section className="home-pace"><PaceTrack spent={spent} boundary={boundary} /><p>You are still covered, but UPI spending is moving faster than the week.</p></section>
         {productRelevant && <section className="product-entry" aria-label="Pace Card suggestion">

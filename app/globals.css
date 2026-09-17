@@ -286,6 +286,13 @@ button:focus-visible, input:focus-visible {
   background: var(--surface-2);
 }
 .icon-button:active { transform: scale(0.96); }
+.avatar-button {
+  background: linear-gradient(160deg, var(--surface-2), var(--surface-1));
+  color: var(--aqua);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
 
 .eyebrow {
   margin: 0 0 10px;
@@ -855,7 +862,7 @@ button:focus-visible, input:focus-visible {
 .track-stats b { color: var(--text-primary); font-size: 13px; font-variant-numeric: tabular-nums; font-weight: 700; }
 
 /* ─── Dual Actions & Timeline ────────────────────────────────────── */
-.dual-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dual-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
 .dual-actions button {
   height: 48px;
   display: flex;
