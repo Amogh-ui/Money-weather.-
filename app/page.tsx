@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
-  ArrowLeft, ArrowRight, CalendarDays, Check, ChevronRight, CircleDollarSign,
-  CreditCard, Gauge, Home, Pause, ReceiptText, ShieldCheck, SlidersHorizontal,
-  Sparkles, WalletCards,
+  ArrowLeft, ArrowRight, CalendarDays, Check, CircleDollarSign,
+  CreditCard, Gauge, Home, Pause, QrCode, ReceiptText, ShieldCheck, SlidersHorizontal,
+  Sparkles, WalletCards, X,
 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Slider } from "@/components/ui/slider";
@@ -104,6 +104,8 @@ export default function HomePage() {
   const [recommendationView, setRecommendationView] = useState<RecommendationView>(null);
   const [recommendationDismissed, setRecommendationDismissed] = useState(false);
   const [creditActivated, setCreditActivated] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [scanFound, setScanFound] = useState(false);
 
   const commitments = rent + planned + other;
   const safeToUse = Math.max(0, SALARY - SAVINGS - commitments);
@@ -139,6 +141,18 @@ export default function HomePage() {
     } catch { /* unsupported preview context */ }
     return () => lifecycle.abort();
   }, [spent]);
+
+  useEffect(() => {
+    if (!scanning) return;
+    const found = setTimeout(() => setScanFound(true), 1300);
+    const complete = setTimeout(() => {
+      setScanning(false);
+      setScanFound(false);
+      setPaymentDone(true);
+      setSheetOpen(true);
+    }, 1900);
+    return () => { clearTimeout(found); clearTimeout(complete); };
+  }, [scanning]);
 
   const screens = useMemo(() => [
     <ScreenFrame key="salary" onNavigate={navTo}>
@@ -201,8 +215,18 @@ export default function HomePage() {
         </section>}
         <div className="dual-actions"><button onClick={() => setScreen(5)}>What changed? <ArrowRight size={16} /></button><button onClick={() => setScreen(6)}>Review options <ArrowRight size={16} /></button></div>
         <section className="timeline-strip"><div className="section-heading"><span className="section-kicker">Coming up</span><b>Next: 20 Sep</b></div><div className="timeline-items"><div><CalendarDays size={16} /><span>20 Sep<b>Rent</b></span><strong>₹16,000</strong></div><div><CircleDollarSign size={16} /><span>22 Sep<b>Phone bill</b></span><strong>₹1,200</strong></div></div></section>
-        <button className="payment-trigger" onClick={() => { setPaymentDone(true); setSheetOpen(true); }}><span><WalletCards size={18} />Try a UPI payment</span><b>Pay ₹320 <ChevronRight size={17} /></b></button>
       </div>
+      <button className="scan-fab" onClick={() => setScanning(true)} aria-label="Scan a UPI QR code"><QrCode size={22} /></button>
+      {scanning && (
+        <div className="scan-overlay" role="dialog" aria-modal="true" aria-label="Scanning for QR code">
+          <button className="icon-button scan-close" onClick={() => { setScanning(false); setScanFound(false); }} aria-label="Cancel scan"><X size={18} /></button>
+          <div className={`scan-frame ${scanFound ? "found" : ""}`}>
+            <span className="corner tl" /><span className="corner tr" /><span className="corner bl" /><span className="corner br" />
+            {scanFound ? <div className="scan-check"><Check size={34} /></div> : <div className="scan-line" />}
+          </div>
+          <p className="scan-caption">{scanFound ? "QR code recognized" : "Point your camera at a UPI QR code"}</p>
+        </div>
+      )}
     </ScreenFrame>,
 
     <ScreenFrame key="payment" nav="home" onNavigate={navTo}><div /></ScreenFrame>,
@@ -244,7 +268,7 @@ export default function HomePage() {
       </div>
       <div className="sticky-action"><button className="primary-button" onClick={goHome}>{reviewChoice === "pause" ? "Pause for next week" : reviewChoice === "adjust" ? "Adjust next week" : "Keep my boundary"}</button></div>
     </ScreenFrame>,
-  ], [availableSafe, boundary, choice, commitments, condition, creditActivated, feedback, other, paymentDone, planned, productRelevant, rent, reviewChoice, safeToUse, spent, usedPercent]);
+  ], [availableSafe, boundary, choice, commitments, condition, creditActivated, feedback, other, paymentDone, planned, productRelevant, rent, reviewChoice, safeToUse, scanFound, scanning, spent, usedPercent]);
 
   return (
     <main className="stage">
