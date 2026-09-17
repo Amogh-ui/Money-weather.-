@@ -1590,6 +1590,7 @@ button:focus-visible, input:focus-visible {
 .review-stats div:nth-child(even) { padding-left: 15px; border-left: 1px solid var(--border-subtle); }
 .review-stats div:last-child { grid-column: 1 / -1; border-left: 0; padding-left: 0; }
 .review-stats b { display: block; margin-top: 4px; font-size: 14px; font-weight: 700; }
+.review-stats small { display: block; margin-top: 4px; color: var(--text-tertiary); font-size: 11px; letter-spacing: 0.02em; font-weight: 400; }
 
 .influence { margin: 20px 0; }
 .influence > div {

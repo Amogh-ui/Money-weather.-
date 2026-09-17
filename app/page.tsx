@@ -114,6 +114,7 @@ export default function HomePage() {
   const [creditActivated, setCreditActivated] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [scanFound, setScanFound] = useState(false);
+  const [creditReviewPending, setCreditReviewPending] = useState(false);
 
   const commitments = rent + planned + other;
   const safeToUse = Math.max(0, SALARY - SAVINGS - commitments);
@@ -272,14 +273,14 @@ export default function HomePage() {
     </ScreenFrame>,
 
     <ScreenFrame key="review" nav="plan" onNavigate={navTo}>
-      <TopBar title="Weekly review" onBack={() => setScreen(6)} />
+      <TopBar title="Review" onBack={() => setScreen(6)} />
       <div className="screen-scroll review-screen">
-        <div className="review-hero"><span className="section-kicker">This week</span><h2>You noticed the shift<br />while there was time.</h2><div className="review-glow" /></div>
+        <div className="review-hero"><span className="section-kicker">This week</span><h2>{creditActivated ? <>Pace Card covered<br />the gap this week.</> : <>You noticed the shift<br />while there was time.</>}</h2><div className="review-glow" /></div>
         <div className="comparison"><div><span>Boundary</span><b>{inr(boundary)}</b></div><div><span>Actual UPI</span><b>{inr(spent)}</b></div><div className="comparison-line"><i style={{ left: `${WEEK_PROGRESS}%` }} /><em style={{ width: `${Math.min(usedPercent, 100)}%` }} /></div><p><span>{WEEK_PROGRESS}% week progress</span><span>{usedPercent}% spending progress</span></p></div>
-        <div className="review-stats"><div><span>Days stable</span><b>3</b></div><div><span>Days tightening</span><b>4</b></div><div><span>Safe-to-use impact</span><b>−{inr(spent)}</b></div></div>
-        <div className="influence"><span className="section-kicker">Main influence</span><div><ReceiptText size={17} /><p>33 small UPI payments</p><b>{inr(spent)}</b></div></div>
+        <div className="review-stats"><div><span>Days stable</span><b>3</b></div><div><span>Days tightening</span><b>4</b></div><div><span>Safe-to-use impact</span><b>{creditActivated ? `−${inr(Math.max(spent - PRODUCT_AMOUNT, 0))}` : `−${inr(spent)}`}</b>{creditActivated && <small>Includes +{inr(PRODUCT_AMOUNT)} Pace Card credit</small>}</div></div>
+        <div className="influence"><span className="section-kicker">Main influence</span><div><ReceiptText size={17} /><p>33 small UPI payments</p><b>{inr(spent)}</b></div>{creditActivated && <div><CreditCard size={17} /><p>Pace Card credit added</p><b>+{inr(PRODUCT_AMOUNT)}</b></div>}</div>
         <div className="next-week"><h3>What would you like to do next week?</h3>{[{ id: "keep" as const, label: `Keep ${inr(boundary)}` }, { id: "adjust" as const, label: "Adjust the amount" }, { id: "pause" as const, label: "Pause the boundary" }].map((item) => <button key={item.id} onClick={() => setReviewChoice(item.id)} className={reviewChoice === item.id ? "selected" : ""}><span>{reviewChoice === item.id && <Check size={14} />}</span>{item.label}</button>)}</div>
-        <p className="closing-summary">You stayed in control because you noticed the change while there was still time to respond.</p>
+        <p className="closing-summary">{creditActivated ? "Pace Card covered the gap this week and is repaid automatically from your next salary." : "You stayed in control because you noticed the change while there was still time to respond."}</p>
       </div>
       <div className="sticky-action"><button className="primary-button" onClick={goHome}>{reviewChoice === "pause" ? "Pause for next week" : reviewChoice === "adjust" ? "Adjust next week" : "Keep my boundary"}</button></div>
     </ScreenFrame>,
@@ -360,7 +361,7 @@ export default function HomePage() {
             <div className="benefit-pair review-benefits"><section><h3>Your benefit</h3><p>₹2,000 becomes available to spend this week, without touching your commitments.</p></section><section><h3>Bank benefit</h3><p>The bank earns interest only if you don’t repay in full by your next salary date.</p></section></div>
             <Accordion type="single" collapsible className="dark-accordion recommendation-calculation"><AccordionItem value="terms"><AccordionTrigger>Applicable interest and terms</AccordionTrigger><AccordionContent><p className="accordion-copy">The applicable interest rate and complete card terms should be provided by the bank for review before activation. This prototype does not state an APR or guarantee approval.</p></AccordionContent></AccordionItem></Accordion>
             <p className="optional-note"><ShieldCheck size={16} />This is optional and does not affect your ability to use UPI.</p>
-            <div className="recommendation-actions"><button className="primary-button" onClick={() => { setCreditActivated(true); setChoice((c) => (c === "credit" ? null : c)); setRecommendationView("confirmed"); }}>Activate Pace Card</button><button className="text-button" onClick={() => setRecommendationView("detail")}>Go back</button></div>
+            <div className="recommendation-actions"><button className="primary-button" onClick={() => { setCreditReviewPending(choice === "credit"); setCreditActivated(true); setChoice((c) => (c === "credit" ? null : c)); setRecommendationView("confirmed"); }}>Activate Pace Card</button><button className="text-button" onClick={() => setRecommendationView("detail")}>Go back</button></div>
           </>}
 
           {recommendationView === "confirmed" && <div className="confirmation-state">
@@ -368,7 +369,7 @@ export default function HomePage() {
             <SheetTitle>₹2,000 credit is now active</SheetTitle>
             <SheetDescription>Pace Card is active. Your Money Weather stays {condition}, and {inr(availableSafe)} is now available to spend this week.</SheetDescription>
             <div className="confirmation-summary"><span>Credit added</span><b>{inr(PRODUCT_AMOUNT)}</b><small>Auto-repaid from your next salary</small></div>
-            <button className="primary-button" onClick={() => { setRecommendationView(null); setScreen(3); }}>Back to Money Weather</button>
+            <button className="primary-button" onClick={() => { setRecommendationView(null); if (creditReviewPending) { setCreditReviewPending(false); setScreen(7); } else { setScreen(3); } }}>{creditReviewPending ? "See review" : "Back to Money Weather"}</button>
           </div>}
         </SheetContent>
       </Sheet>
