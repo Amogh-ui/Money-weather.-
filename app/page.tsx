@@ -289,7 +289,6 @@ export default function HomePage() {
   return (
     <main className="stage">
       <section className="phone" aria-label="Money Weather mobile prototype">
-        <div className="status-row" aria-hidden="true"><span>9:41</span><div className="status-icons"><i /><i /><i /></div></div>
         <div className="screen-transition" key={screen}>{screens[screen]}</div>
       </section>
       <aside className="prototype-rail" aria-label="Prototype screens">

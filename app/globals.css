@@ -195,24 +195,8 @@ button:focus-visible, input:focus-visible {
     var(--shadow-aqua);
 }
 
-.status-row {
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 29px 0;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-}
-.status-icons { display: flex; align-items: flex-end; gap: 4px; }
-.status-icons i { display: block; width: 4px; border-radius: 4px; background: var(--text-primary); }
-.status-icons i:nth-child(1) { height: 6px; opacity: .45; }
-.status-icons i:nth-child(2) { height: 9px; opacity: .65; }
-.status-icons i:nth-child(3) { width: 13px; height: 7px; border: 1px solid var(--text-primary); background: transparent; opacity: .65; }
-
 .screen-transition {
-  height: calc(100% - 38px);
+  height: 100%;
   animation: screen-in .32s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .screen {
