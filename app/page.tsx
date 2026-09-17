@@ -11,7 +11,7 @@ import { Slider } from "@/components/ui/slider";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 
 type Condition = "Stable" | "Tightening" | "Under Pressure";
-type RouteChoice = "slow" | "adjust" | "none" | null;
+type RouteChoice = "slow" | "adjust" | "none" | "credit" | null;
 type RecommendationView = "detail" | "compare" | "review" | "confirmed" | null;
 
 const SALARY = 60000;
@@ -162,6 +162,13 @@ export default function HomePage() {
     return () => { clearTimeout(found); clearTimeout(complete); };
   }, [scanning]);
 
+  const optionsRoutes = useMemo(() => [
+    { id: "slow" as const, title: "Slow the pace", lead: "Use up to ₹1,200 more", body: "No boundary change. Your condition may return to Stable.", meta: "No payment restrictions" },
+    { id: "adjust" as const, title: "Adjust the boundary", lead: "₹6,000 → ₹7,500", body: "Safe to use becomes ₹22,500. The condition stays Tightening.", meta: "Reversible at any time" },
+    { id: "none" as const, title: "Make no change", lead: "Keep using UPI normally", body: "The app keeps providing feedback. Nothing is blocked.", meta: "No action required" },
+    ...(condition !== "Stable" && !creditActivated ? [{ id: "credit" as const, title: "Use Pace Card", lead: `+${inr(PRODUCT_AMOUNT)} this week`, body: "Adds a short-term credit buffer when you’re short on funds, repaid automatically from your next salary.", meta: "Reviewed before activation" }] : []),
+  ], [condition, creditActivated]);
+
   const screens = useMemo(() => [
     <ScreenFrame key="salary" onNavigate={navTo}>
       <div className="salary-screen">
@@ -255,13 +262,13 @@ export default function HomePage() {
 
     <ScreenFrame key="options" nav="plan" onNavigate={navTo}>
       <TopBar title="Your options" onBack={() => setScreen(5)} />
-      <div className="screen-scroll options-screen"><div className="section-intro"><p className="eyebrow">Three routes. Your call.</p><h2>What feels realistic<br />for this week?</h2></div>
+      <div className="screen-scroll options-screen"><div className="section-intro"><p className="eyebrow">{optionsRoutes.length} routes. Your call.</p><h2>What feels realistic<br />for this week?</h2></div>
         <div className="route-list">
-          {[{ id: "slow" as const, title: "Slow the pace", lead: "Use up to ₹1,200 more", body: "No boundary change. Your condition may return to Stable.", meta: "No payment restrictions" }, { id: "adjust" as const, title: "Adjust the boundary", lead: "₹6,000 → ₹7,500", body: "Safe to use becomes ₹22,500. The condition stays Tightening.", meta: "Reversible at any time" }, { id: "none" as const, title: "Make no change", lead: "Keep using UPI normally", body: "The app keeps providing feedback. Nothing is blocked.", meta: "No action required" }].map((route) => <button key={route.id} className={`route-panel ${choice === route.id ? "selected" : ""}`} onClick={() => setChoice(route.id)}><span className="route-radio">{choice === route.id && <i />}</span><div><span>{route.title}</span><strong>{route.lead}</strong><p>{route.body}</p><small>{route.meta}</small></div></button>)}
+          {optionsRoutes.map((route) => <button key={route.id} className={`route-panel ${choice === route.id ? "selected" : ""}`} onClick={() => setChoice(route.id)}><span className="route-radio">{choice === route.id && <i />}</span><div><span>{route.title}</span><strong>{route.lead}</strong><p>{route.body}</p><small>{route.meta}</small></div></button>)}
         </div>
         <p className="control-note">Every option keeps you in control and can be changed later.</p>
       </div>
-      <div className="sticky-action"><button className="primary-button" disabled={!choice} onClick={() => { if (choice === "adjust") setBoundary(7500); setScreen(7); }}>{choice ? "Continue with this route" : "Choose an option"}</button></div>
+      <div className="sticky-action"><button className="primary-button" disabled={!choice} onClick={() => { if (choice === "adjust") setBoundary(7500); if (choice === "credit") { setRecommendationView("review"); return; } setScreen(7); }}>{choice === "credit" ? "Review Pace Card" : choice ? "Continue with this route" : "Choose an option"}</button></div>
     </ScreenFrame>,
 
     <ScreenFrame key="review" nav="plan" onNavigate={navTo}>
@@ -276,7 +283,7 @@ export default function HomePage() {
       </div>
       <div className="sticky-action"><button className="primary-button" onClick={goHome}>{reviewChoice === "pause" ? "Pause for next week" : reviewChoice === "adjust" ? "Adjust next week" : "Keep my boundary"}</button></div>
     </ScreenFrame>,
-  ], [availableSafe, boundary, choice, commitments, condition, creditActivated, feedback, other, paymentDone, planned, productRelevant, rent, reviewChoice, safeToUse, scanFound, scanning, spent, usedPercent]);
+  ], [availableSafe, boundary, choice, commitments, condition, creditActivated, feedback, optionsRoutes, other, paymentDone, planned, productRelevant, rent, reviewChoice, safeToUse, scanFound, scanning, spent, usedPercent]);
 
   return (
     <main className="stage">
@@ -353,7 +360,7 @@ export default function HomePage() {
             <div className="benefit-pair review-benefits"><section><h3>Your benefit</h3><p>₹2,000 becomes available to spend this week, without touching your commitments.</p></section><section><h3>Bank benefit</h3><p>The bank earns interest only if you don’t repay in full by your next salary date.</p></section></div>
             <Accordion type="single" collapsible className="dark-accordion recommendation-calculation"><AccordionItem value="terms"><AccordionTrigger>Applicable interest and terms</AccordionTrigger><AccordionContent><p className="accordion-copy">The applicable interest rate and complete card terms should be provided by the bank for review before activation. This prototype does not state an APR or guarantee approval.</p></AccordionContent></AccordionItem></Accordion>
             <p className="optional-note"><ShieldCheck size={16} />This is optional and does not affect your ability to use UPI.</p>
-            <div className="recommendation-actions"><button className="primary-button" onClick={() => { setCreditActivated(true); setRecommendationView("confirmed"); }}>Activate Pace Card</button><button className="text-button" onClick={() => setRecommendationView("detail")}>Go back</button></div>
+            <div className="recommendation-actions"><button className="primary-button" onClick={() => { setCreditActivated(true); setChoice((c) => (c === "credit" ? null : c)); setRecommendationView("confirmed"); }}>Activate Pace Card</button><button className="text-button" onClick={() => setRecommendationView("detail")}>Go back</button></div>
           </>}
 
           {recommendationView === "confirmed" && <div className="confirmation-state">
