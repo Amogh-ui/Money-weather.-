@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Slider } from "@/components/ui/slider";
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 
 type Condition = "Stable" | "Tightening" | "Under Pressure";
 type RouteChoice = "slow" | "adjust" | "none" | "credit" | null;
@@ -108,7 +108,6 @@ export default function HomePage() {
   const [boundary, setBoundary] = useState(6000);
   const [feedback, setFeedback] = useState<number[]>([]);
   const [paymentDone, setPaymentDone] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
   const [choice, setChoice] = useState<RouteChoice>(null);
   const [reviewChoice, setReviewChoice] = useState<"keep" | "adjust" | "pause">("keep");
   const [recommendationView, setRecommendationView] = useState<RecommendationView>(null);
@@ -160,7 +159,7 @@ export default function HomePage() {
       setScanning(false);
       setScanFound(false);
       setPaymentDone(true);
-      setSheetOpen(true);
+      setScreen(4);
     }, 1900);
     return () => { clearTimeout(found); clearTimeout(complete); };
   }, [scanning]);
@@ -247,7 +246,23 @@ export default function HomePage() {
       )}
     </ScreenFrame>,
 
-    <ScreenFrame key="payment" nav="home" onNavigate={navTo}><div /></ScreenFrame>,
+    <ScreenFrame key="payment" nav="home" onNavigate={navTo}>
+      <TopBar title="Payment" onBack={goHome} />
+      <div className="screen-scroll narrative-screen">
+        <div className="confirmation-state">
+          <span className="confirmation-icon"><Check size={22} /></span>
+          <div className="sheet-title"><span>Payment successful</span><strong>₹320 paid</strong></div>
+          <p className="sheet-description">City Coffee · UPI</p>
+        </div>
+        <div className="payment-update"><span>Updated this week</span><b>{inr(spent)} <em>{usedPercent}% used</em></b></div>
+        <PaceTrack spent={spent} boundary={boundary} mini />
+        <p className="sheet-message">Your payment went through. You are now using your boundary faster than the week is moving.</p>
+      </div>
+      <div className="sticky-action">
+        <button className="primary-button" onClick={() => setScreen(5)}>View impact <ArrowRight size={18} /></button>
+        <button className="text-button" style={{ display: "block", width: "100%", marginTop: 4 }} onClick={goHome}>Not now</button>
+      </div>
+    </ScreenFrame>,
 
     <ScreenFrame key="changed" nav="activity" onNavigate={navTo}>
       <TopBar title="What changed" onBack={goHome} />
@@ -298,19 +313,6 @@ export default function HomePage() {
         <div>{Array.from({ length: 8 }, (_, index) => <button key={index} className={screen === index ? "active" : ""} onClick={() => setScreen(index)} aria-label={`Go to screen ${index + 1}`} />)}</div>
         <small>Use the dots to inspect any screen.</small>
       </aside>
-
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent side="bottom" showCloseButton={false} className="payment-sheet">
-          <div className="sheet-handle" />
-          <SheetTitle className="sheet-title"><span>Payment successful</span><strong>₹320 paid</strong></SheetTitle>
-          <SheetDescription className="sheet-description">City Coffee · UPI</SheetDescription>
-          <div className="payment-update"><span>Updated this week</span><b>{inr(spent)} <em>{usedPercent}% used</em></b></div>
-          <PaceTrack spent={spent} boundary={boundary} mini />
-          <p className="sheet-message">Your payment went through. You are now using your boundary faster than the week is moving.</p>
-          <button className="primary-button" onClick={() => { setSheetOpen(false); setScreen(5); }}>View impact</button>
-          <SheetClose asChild><button className="text-button">Dismiss</button></SheetClose>
-        </SheetContent>
-      </Sheet>
 
       <Sheet open={recommendationView !== null} onOpenChange={(open) => { if (!open) setRecommendationView(null); }}>
         <SheetContent side="bottom" showCloseButton={false} className="payment-sheet recommendation-sheet">
