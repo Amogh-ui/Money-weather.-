@@ -264,7 +264,7 @@ export default function HomePage() {
       <TopBar title="Your options" onBack={() => setScreen(5)} />
       <div className="screen-scroll options-screen"><div className="section-intro"><p className="eyebrow">{optionsRoutes.length} routes. Your call.</p><h2>What feels realistic<br />for this week?</h2></div>
         <div className="route-list">
-          {optionsRoutes.map((route) => <button key={route.id} className={`route-panel ${choice === route.id ? "selected" : ""}`} onClick={() => setChoice(route.id)}><span className="route-radio">{choice === route.id && <i />}</span><div><span>{route.title}</span><strong>{route.lead}</strong><p>{route.body}</p><small>{route.meta}</small></div></button>)}
+          {optionsRoutes.map((route) => <button key={route.id} className={`route-panel ${route.id === "credit" ? "route-panel-credit" : ""} ${choice === route.id ? "selected" : ""}`} onClick={() => setChoice(route.id)}><span className="route-radio">{choice === route.id && <i />}</span><div><span>{route.title}</span><strong>{route.lead}</strong><p>{route.body}</p><small>{route.meta}</small></div></button>)}
         </div>
         <p className="control-note">Every option keeps you in control and can be changed later.</p>
       </div>

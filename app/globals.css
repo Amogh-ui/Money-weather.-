@@ -230,7 +230,7 @@ button:focus-visible, input:focus-visible {
   padding: 0 22px 112px;
 }
 .screen-scroll::-webkit-scrollbar { display: none; }
-.with-nav .screen-scroll { padding-bottom: 118px; }
+.with-nav .screen-scroll { padding-bottom: 190px; }
 
 /* ─── Top Bar ────────────────────────────────────────────────────── */
 .topbar {
@@ -1255,6 +1255,26 @@ button:focus-visible, input:focus-visible {
 .route-panel strong { display: block; margin: 4px 0 6px; font-size: 14px; font-weight: 700; }
 .route-panel p { margin: 0; color: var(--text-secondary); font-size: 11px; letter-spacing: 0.02em; line-height: 1.55; font-weight: 400; }
 .route-panel small { display: block; margin-top: 8px; color: var(--aqua); font-size: 11px; letter-spacing: 0.02em; font-weight: 500; }
+
+.route-panel.route-panel-credit {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: linear-gradient(135deg, var(--aqua) 0%, #00e6b8 50%, #00ccaa 100%);
+  box-shadow: 0 4px 20px rgba(0, 255, 204, 0.18);
+}
+.route-panel.route-panel-credit::before { background: var(--background); }
+.route-panel.route-panel-credit:hover { background: linear-gradient(135deg, var(--aqua) 0%, #00e6b8 50%, #00ccaa 100%); }
+.route-panel.route-panel-credit div > span { color: rgba(5, 5, 7, 0.6); }
+.route-panel.route-panel-credit strong { color: var(--background); }
+.route-panel.route-panel-credit p { color: rgba(5, 5, 7, 0.72); }
+.route-panel.route-panel-credit small { color: var(--background); }
+.route-panel.route-panel-credit .route-radio { border-color: rgba(5, 5, 7, 0.4); }
+.route-panel.route-panel-credit .route-radio i { background: var(--background); box-shadow: none; }
+.route-panel.route-panel-credit.selected {
+  border-color: rgba(0, 0, 0, 0.12);
+  background: linear-gradient(135deg, var(--aqua) 0%, #00e6b8 50%, #00ccaa 100%);
+  box-shadow: 0 0 0 2px var(--background), 0 4px 20px rgba(0, 255, 204, 0.18);
+}
+.route-panel.route-panel-credit.selected .route-radio { border-color: var(--background); }
 .control-note { margin: 15px 0 0; color: var(--text-quaternary); font-size: 11px; letter-spacing: 0.02em; text-align: center; font-weight: 400; }
 
 .optional-product {
