@@ -40,11 +40,11 @@ function PaceTrack({ spent, boundary, mini = false }: { spent: number; boundary:
   const used = Math.round((spent / boundary) * 100);
   return (
     <div className={`pace-track ${mini ? "pace-mini" : ""}`} aria-label={`${used}% of UPI boundary used; ${WEEK_PROGRESS}% of week completed`}>
-      {!mini && <div className="track-top"><span>UPI PACE</span><span>{3} DAYS LEFT</span></div>}
+      {!mini && <div className="track-top"><span>UPI pace</span><span>{3} days left</span></div>}
       <div className="track-rail">
         <div className="track-ticks">{Array.from({ length: 8 }, (_, i) => <i key={i} />)}</div>
         <div className="spend-line" style={{ width: `${Math.min(used, 100)}%` }} />
-        <span className="time-marker" style={{ left: `${WEEK_PROGRESS}%` }}><b>TIME</b></span>
+        <span className="time-marker" style={{ left: `${WEEK_PROGRESS}%` }}><b>Week</b></span>
         <span className="spend-marker" style={{ left: `${Math.min(used, 100)}%` }}><b>UPI</b></span>
       </div>
       {!mini && (
@@ -137,7 +137,7 @@ export default function HomePage() {
       <div className="salary-screen">
         <header className="brand-row"><div className="brand-mark"><Sparkles size={15} /></div><span>Money Weather</span><span className="step-label">01 / 08</span></header>
         <div className="salary-copy"><p className="eyebrow">Your first salary is here.</p><h1>₹60,000</h1><div className="salary-meta"><span>Aster Labs</span><span>17 Sep 2026</span></div></div>
-        <div className="opening-atmosphere"><Atmosphere condition="Stable" /><span>FINANCIAL HORIZON · CALM</span></div>
+        <div className="opening-atmosphere"><Atmosphere condition="Stable" /><span className="section-kicker">Financial horizon <i /> Calm</span></div>
         <div className="arrival-note"><span className="note-index">01</span><p>We’ll separate what you can use from money that’s already spoken for.</p></div>
         <div className="screen-actions"><button className="primary-button" onClick={() => setScreen(1)}>Plan this salary <ArrowRight size={18} /></button><button className="text-button" onClick={() => setScreen(3)}>Not now</button></div>
       </div>
@@ -149,7 +149,7 @@ export default function HomePage() {
         <div className="section-intro"><p className="eyebrow">₹60,000 received</p><h2>Give every rupee<br />a little context.</h2></div>
         <div className="allocation" aria-label="Salary allocation">
           <div className="allocation-bar"><span style={{ width: `${(commitments / SALARY) * 100}%` }} /><span style={{ width: `${(SAVINGS / SALARY) * 100}%` }} /><span className="safe" style={{ width: `${(safeToUse / SALARY) * 100}%` }} /></div>
-          <div className="allocation-legend"><button><i />Commitments<b>{inr(commitments)}</b></button><button><i />Savings<b>{inr(SAVINGS)}</b></button><button className="selected"><i />Safe to use<b>{inr(safeToUse)}</b></button></div>
+          <div className="allocation-legend"><div><i />Commitments<b>{inr(commitments)}</b></div><div><i />Savings<b>{inr(SAVINGS)}</b></div><div className="selected"><i />Safe to use<b>{inr(safeToUse)}</b></div></div>
         </div>
         <Accordion type="single" collapsible defaultValue="commitments" className="dark-accordion">
           <AccordionItem value="commitments"><AccordionTrigger>Upcoming commitments <span className="accordion-amount">{inr(commitments)}</span></AccordionTrigger><AccordionContent>
@@ -181,12 +181,12 @@ export default function HomePage() {
         <header className="home-header"><div><p>Good morning,</p><h2>Amogh.</h2></div><button className="icon-button" aria-label="Plan settings"><SlidersHorizontal size={18} /></button></header>
         <section className="weather-hero">
           <Atmosphere condition={condition} />
-          <div className="weather-copy"><span>MONEY WEATHER · NOW</span><h1>{condition}.</h1><p>{condition === "Stable" ? "Your money has room." : condition === "Tightening" ? "Your spending is moving ahead of the week." : "Continuing at this pace may affect upcoming commitments."}</p></div>
-          <div className="safe-line"><span>SAFE TO USE</span><b>{inr(availableSafe)}</b><small>after {inr(commitments)} commitments{choice === "adjust" ? " and boundary adjustment" : ""}</small></div>
+          <div className="weather-copy"><span className="section-kicker">Money Weather <i /> Now</span><h1>{condition}.</h1><p>{condition === "Stable" ? "Your money has room." : condition === "Tightening" ? "Your spending is moving ahead of the week." : "Continuing at this pace may affect upcoming commitments."}</p></div>
+          <div className="safe-line"><span className="metric-label">Safe to use</span><b>{inr(availableSafe)}</b><small>After {inr(commitments)} in commitments{choice === "adjust" ? " and a boundary adjustment" : ""}</small></div>
         </section>
         <section className="home-pace"><PaceTrack spent={spent} boundary={boundary} /><p>You are still covered, but UPI spending is moving faster than the week.</p></section>
         <div className="dual-actions"><button onClick={() => setScreen(5)}>What changed? <ArrowRight size={16} /></button><button onClick={() => setScreen(6)}>Review options <ArrowRight size={16} /></button></div>
-        <section className="timeline-strip"><div className="section-heading"><span>COMING UP</span><b>Next: 20 Sep</b></div><div className="timeline-items"><div><CalendarDays size={16} /><span>20 Sep<b>Rent</b></span><strong>₹16,000</strong></div><div><CircleDollarSign size={16} /><span>22 Sep<b>Phone bill</b></span><strong>₹1,200</strong></div></div></section>
+        <section className="timeline-strip"><div className="section-heading"><span className="section-kicker">Coming up</span><b>Next: 20 Sep</b></div><div className="timeline-items"><div><CalendarDays size={16} /><span>20 Sep<b>Rent</b></span><strong>₹16,000</strong></div><div><CircleDollarSign size={16} /><span>22 Sep<b>Phone bill</b></span><strong>₹1,200</strong></div></div></section>
         <button className="payment-trigger" onClick={() => { setPaymentDone(true); setSheetOpen(true); }}><span><WalletCards size={18} />Try a UPI payment</span><b>Pay ₹320 <ChevronRight size={17} /></b></button>
       </div>
     </ScreenFrame>,
@@ -196,12 +196,12 @@ export default function HomePage() {
     <ScreenFrame key="changed" nav="activity" onNavigate={navTo}>
       <TopBar title="What changed" step={6} onBack={goHome} />
       <div className="screen-scroll narrative-screen">
-        <div className="change-title"><span>MONDAY</span><b>Stable</b><ArrowRight size={19} /><span>TODAY</span><b>{condition}</b></div>
+        <div className="change-title"><span>Monday</span><b>Stable</b><ArrowRight size={19} /><span>Today</span><b>{condition}</b></div>
         <div className="factor-line">
           {[{ icon: WalletCards, label: "UPI spending reached", value: inr(spent) }, { icon: Gauge, label: "Weekly boundary used", value: `${usedPercent}%` }, { icon: CalendarDays, label: "Week completed", value: `${WEEK_PROGRESS}%` }].map(({ icon: Icon, label, value }, i) => <div className="factor" key={label}><span className="factor-number">0{i + 1}</span><Icon size={17} /><p>{label}</p><b>{value}</b></div>)}
         </div>
-        <div className="payments-group"><div className="section-heading"><span>CONTRIBUTING PAYMENTS</span><b>Grouped, not judged</b></div>{[{ name: "Food & coffee", count: "8 payments", amount: 1640 }, { name: "Travel", count: "11 payments", amount: 1380 }, { name: "Everyday purchases", count: "14 payments", amount: 1780 }].map((item) => <div key={item.name}><span>{item.name}<small>{item.count}</small></span><b>{inr(item.amount)}</b></div>)}</div>
-        <div className="estimate-panel"><span>ESTIMATE</span><strong>+ ₹1,500</strong><p>At the current pace, you may use approximately ₹1,500 more than your selected weekly boundary.</p><small>This is an estimate, not a certainty.</small></div>
+        <div className="payments-group"><div className="section-heading"><span className="section-kicker">Contributing payments</span><b>Grouped, not judged</b></div>{[{ name: "Food & coffee", count: "8 payments", amount: 1640 }, { name: "Travel", count: "11 payments", amount: 1380 }, { name: "Everyday purchases", count: "14 payments", amount: 1780 }].map((item) => <div key={item.name}><span>{item.name}<small>{item.count}</small></span><b>{inr(item.amount)}</b></div>)}</div>
+        <div className="estimate-panel"><span className="section-kicker">Estimate</span><strong>+ ₹1,500</strong><p>At the current pace, you may use approximately ₹1,500 more than your selected weekly boundary.</p><small>This is an estimate, not a certainty.</small></div>
         <Accordion type="single" collapsible className="dark-accordion"><AccordionItem value="calculation"><AccordionTrigger>See calculation</AccordionTrigger><AccordionContent><p className="accordion-copy">You used {inr(spent)} across 4 of 7 days. Continuing at a similar daily pace gives a projected weekly total near {inr(boundary + 1500)}. Actual spending may differ.</p></AccordionContent></AccordionItem></Accordion>
       </div>
       <div className="sticky-action"><button className="primary-button" onClick={() => setScreen(6)}>See my options</button></div>
@@ -221,10 +221,10 @@ export default function HomePage() {
     <ScreenFrame key="review" nav="plan" onNavigate={navTo}>
       <TopBar title="Weekly review" step={8} onBack={() => setScreen(6)} />
       <div className="screen-scroll review-screen">
-        <div className="review-hero"><span>THIS WEEK</span><h2>You noticed the shift<br />while there was time.</h2><div className="review-glow" /></div>
-        <div className="comparison"><div><span>BOUNDARY</span><b>{inr(boundary)}</b></div><div><span>ACTUAL UPI</span><b>{inr(spent)}</b></div><div className="comparison-line"><i style={{ left: `${WEEK_PROGRESS}%` }} /><em style={{ width: `${Math.min(usedPercent, 100)}%` }} /></div><p><span>{WEEK_PROGRESS}% week progress</span><span>{usedPercent}% spending progress</span></p></div>
-        <div className="review-stats"><div><span>DAYS IN STABLE</span><b>3</b></div><div><span>DAYS TIGHTENING</span><b>4</b></div><div><span>SAFE-TO-USE IMPACT</span><b>−{inr(spent)}</b></div></div>
-        <div className="influence"><span>MAIN INFLUENCE</span><div><ReceiptText size={17} /><p>33 small UPI payments</p><b>{inr(spent)}</b></div></div>
+        <div className="review-hero"><span className="section-kicker">This week</span><h2>You noticed the shift<br />while there was time.</h2><div className="review-glow" /></div>
+        <div className="comparison"><div><span>Boundary</span><b>{inr(boundary)}</b></div><div><span>Actual UPI</span><b>{inr(spent)}</b></div><div className="comparison-line"><i style={{ left: `${WEEK_PROGRESS}%` }} /><em style={{ width: `${Math.min(usedPercent, 100)}%` }} /></div><p><span>{WEEK_PROGRESS}% week progress</span><span>{usedPercent}% spending progress</span></p></div>
+        <div className="review-stats"><div><span>Days stable</span><b>3</b></div><div><span>Days tightening</span><b>4</b></div><div><span>Safe-to-use impact</span><b>−{inr(spent)}</b></div></div>
+        <div className="influence"><span className="section-kicker">Main influence</span><div><ReceiptText size={17} /><p>33 small UPI payments</p><b>{inr(spent)}</b></div></div>
         <div className="next-week"><h3>What would you like to do next week?</h3>{[{ id: "keep" as const, label: `Keep ${inr(boundary)}` }, { id: "adjust" as const, label: "Adjust the amount" }, { id: "pause" as const, label: "Pause the boundary" }].map((item) => <button key={item.id} onClick={() => setReviewChoice(item.id)} className={reviewChoice === item.id ? "selected" : ""}><span>{reviewChoice === item.id && <Check size={14} />}</span>{item.label}</button>)}</div>
         <p className="closing-summary">You stayed in control because you noticed the change while there was still time to respond.</p>
       </div>
@@ -239,7 +239,7 @@ export default function HomePage() {
         <div className="screen-transition" key={screen}>{screens[screen]}</div>
       </section>
       <aside className="prototype-rail" aria-label="Prototype screens">
-        <span>MONEY WEATHER</span><p>{String(screen + 1).padStart(2, "0")} / 08</p>
+        <span>Money Weather</span><p>{String(screen + 1).padStart(2, "0")} / 08</p>
         <div>{Array.from({ length: 8 }, (_, index) => <button key={index} className={screen === index ? "active" : ""} onClick={() => setScreen(index)} aria-label={`Go to screen ${index + 1}`} />)}</div>
         <small>Use the dots to inspect any screen.</small>
       </aside>
@@ -249,7 +249,7 @@ export default function HomePage() {
           <div className="sheet-handle" />
           <SheetTitle className="sheet-title"><span>Payment successful</span><strong>₹320 paid</strong></SheetTitle>
           <SheetDescription className="sheet-description">City Coffee · UPI</SheetDescription>
-          <div className="payment-update"><span>UPDATED THIS WEEK</span><b>{inr(spent)} <em>{usedPercent}% used</em></b></div>
+          <div className="payment-update"><span>Updated this week</span><b>{inr(spent)} <em>{usedPercent}% used</em></b></div>
           <PaceTrack spent={spent} boundary={boundary} mini />
           <p className="sheet-message">Your payment went through. You are now using your boundary faster than the week is moving.</p>
           <button className="primary-button" onClick={() => { setSheetOpen(false); setScreen(5); }}>View impact</button>
