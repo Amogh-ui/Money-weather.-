@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   ArrowLeft, ArrowRight, CalendarDays, Check, ChevronRight, CircleDollarSign,
-  Gauge, Home, Landmark, Pause, ReceiptText, ShieldCheck, SlidersHorizontal,
+  CreditCard, Gauge, Home, Pause, ReceiptText, ShieldCheck, SlidersHorizontal,
   Sparkles, WalletCards,
 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -103,17 +103,17 @@ export default function HomePage() {
   const [reviewChoice, setReviewChoice] = useState<"keep" | "adjust" | "pause">("keep");
   const [recommendationView, setRecommendationView] = useState<RecommendationView>(null);
   const [recommendationDismissed, setRecommendationDismissed] = useState(false);
-  const [savingsActivated, setSavingsActivated] = useState(false);
+  const [creditActivated, setCreditActivated] = useState(false);
 
   const commitments = rent + planned + other;
   const safeToUse = Math.max(0, SALARY - SAVINGS - commitments);
   const availableBeforeProduct = Math.max(0, safeToUse - (choice === "adjust" ? Math.max(boundary - 6000, 0) : 0));
-  const availableSafe = Math.max(0, availableBeforeProduct - (savingsActivated ? PRODUCT_AMOUNT : 0));
+  const availableSafe = availableBeforeProduct + (creditActivated ? PRODUCT_AMOUNT : 0);
   const spent = BASE_SPENT + (paymentDone ? 320 : 0);
   const usedPercent = Math.round((spent / boundary) * 100);
   const condition: Condition = usedPercent <= WEEK_PROGRESS + 8 ? "Stable" : usedPercent <= 100 ? "Tightening" : "Under Pressure";
-  const productRelevant = condition === "Tightening" && !recommendationDismissed && !savingsActivated;
-  const productRemainingSafe = Math.max(0, availableBeforeProduct - PRODUCT_AMOUNT);
+  const productRelevant = condition === "Tightening" && !recommendationDismissed && !creditActivated;
+  const productRemainingSafe = availableBeforeProduct + PRODUCT_AMOUNT;
 
   const navTo = (where: "home" | "activity" | "plan") => setScreen(where === "home" ? 3 : where === "activity" ? 5 : 6);
   const goHome = () => setScreen(3);
@@ -190,9 +190,15 @@ export default function HomePage() {
         <section className="weather-hero">
           <Atmosphere condition={condition} />
           <div className="weather-copy"><span className="section-kicker">Money Weather <i /> Now</span><h1>{condition}.</h1><p>{condition === "Stable" ? "Your money has room." : condition === "Tightening" ? "Your spending is moving ahead of the week." : "Continuing at this pace may affect upcoming commitments."}</p></div>
-          <div className="safe-line"><span className="metric-label">Safe to use</span><b>{inr(availableSafe)}</b><small>After {inr(commitments)} in commitments{choice === "adjust" ? " and a boundary adjustment" : ""}{savingsActivated ? ` · ${inr(PRODUCT_AMOUNT)} separated` : ""}</small></div>
+          <div className="safe-line"><span className="metric-label">Safe to use</span><b>{inr(availableSafe)}</b><small>After {inr(commitments)} in commitments{choice === "adjust" ? " and a boundary adjustment" : ""}{creditActivated ? ` · ${inr(PRODUCT_AMOUNT)} Pace Card credit added` : ""}</small></div>
         </section>
         <section className="home-pace"><PaceTrack spent={spent} boundary={boundary} /><p>You are still covered, but UPI spending is moving faster than the week.</p></section>
+        {productRelevant && <section className="product-entry" aria-label="Pace Card suggestion">
+          <div className="product-entry-label"><span>Credit line</span><CreditCard size={15} /></div>
+          <h3>Get ₹2,000 more room this week</h3>
+          <p>Your commitments are covered, but UPI spending is moving ahead of the week. Pace Card adds a short-term buffer, repaid automatically from your next salary.</p>
+          <div className="product-entry-actions"><button onClick={() => setRecommendationView("detail")}>See why <ArrowRight size={15} /></button><button onClick={() => setRecommendationDismissed(true)}>Not interested</button></div>
+        </section>}
         <div className="dual-actions"><button onClick={() => setScreen(5)}>What changed? <ArrowRight size={16} /></button><button onClick={() => setScreen(6)}>Review options <ArrowRight size={16} /></button></div>
         <section className="timeline-strip"><div className="section-heading"><span className="section-kicker">Coming up</span><b>Next: 20 Sep</b></div><div className="timeline-items"><div><CalendarDays size={16} /><span>20 Sep<b>Rent</b></span><strong>₹16,000</strong></div><div><CircleDollarSign size={16} /><span>22 Sep<b>Phone bill</b></span><strong>₹1,200</strong></div></div></section>
         <button className="payment-trigger" onClick={() => { setPaymentDone(true); setSheetOpen(true); }}><span><WalletCards size={18} />Try a UPI payment</span><b>Pay ₹320 <ChevronRight size={17} /></b></button>
@@ -211,12 +217,6 @@ export default function HomePage() {
         <div className="payments-group"><div className="section-heading"><span className="section-kicker">Contributing payments</span><b>Grouped, not judged</b></div>{[{ name: "Food & coffee", count: "8 payments", amount: 1640 }, { name: "Travel", count: "11 payments", amount: 1380 }, { name: "Everyday purchases", count: "14 payments", amount: 1780 }].map((item) => <div key={item.name}><span>{item.name}<small>{item.count}</small></span><b>{inr(item.amount)}</b></div>)}</div>
         <div className="estimate-panel"><span className="section-kicker">Estimate</span><strong>+ ₹1,500</strong><p>At the current pace, you may use approximately ₹1,500 more than your selected weekly boundary.</p><small>This is an estimate, not a certainty.</small></div>
         <Accordion type="single" collapsible className="dark-accordion"><AccordionItem value="calculation"><AccordionTrigger>See calculation</AccordionTrigger><AccordionContent><p className="accordion-copy">You used {inr(spent)} across 4 of 7 days. Continuing at a similar daily pace gives a projected weekly total near {inr(boundary + 1500)}. Actual spending may differ.</p></AccordionContent></AccordionItem></Accordion>
-        {productRelevant && <section className="product-entry" aria-label="Flexible Savings Space suggestion">
-          <div className="product-entry-label"><span>Bank product</span><Landmark size={15} /></div>
-          <h3>Keep ₹2,000 away from everyday spending</h3>
-          <p>Your commitments are covered, but your UPI spending is moving ahead of the week.</p>
-          <div className="product-entry-actions"><button onClick={() => setRecommendationView("detail")}>See why <ArrowRight size={15} /></button><button onClick={() => setRecommendationDismissed(true)}>Not interested</button></div>
-        </section>}
       </div>
       <div className="sticky-action"><button className="primary-button" onClick={() => setScreen(6)}>See my options</button></div>
     </ScreenFrame>,
@@ -228,16 +228,6 @@ export default function HomePage() {
           {[{ id: "slow" as const, title: "Slow the pace", lead: "Use up to ₹1,200 more", body: "No boundary change. Your condition may return to Stable.", meta: "No payment restrictions" }, { id: "adjust" as const, title: "Adjust the boundary", lead: "₹6,000 → ₹7,500", body: "Safe to use becomes ₹22,500. The condition stays Tightening.", meta: "Reversible at any time" }, { id: "none" as const, title: "Make no change", lead: "Keep using UPI normally", body: "The app keeps providing feedback. Nothing is blocked.", meta: "No action required" }].map((route) => <button key={route.id} className={`route-panel ${choice === route.id ? "selected" : ""}`} onClick={() => setChoice(route.id)}><span className="route-radio">{choice === route.id && <i />}</span><div><span>{route.title}</span><strong>{route.lead}</strong><p>{route.body}</p><small>{route.meta}</small></div></button>)}
         </div>
         <p className="control-note">Every option keeps you in control and can be changed later.</p>
-        {productRelevant && <section className="optional-product" aria-label="Optional bank product">
-          <div className="optional-product-heading"><span>Optional bank product</span><Landmark size={15} /></div>
-          <h3>Separate ₹2,000 in Flexible Savings Space</h3>
-          <dl>
-            <div><dt>Your benefit</dt><dd>Keeps it away from everyday spending.</dd></div>
-            <div><dt>Bank benefit</dt><dd>Retains the money within a bank savings product.</dd></div>
-            <div><dt>Your control</dt><dd>Accessible and optional.</dd></div>
-          </dl>
-          <button className="quiet-button" onClick={() => setRecommendationView("compare")}>Compare with my other options <ArrowRight size={15} /></button>
-        </section>}
       </div>
       <div className="sticky-action"><button className="primary-button" disabled={!choice} onClick={() => { if (choice === "adjust") setBoundary(7500); setScreen(7); }}>{choice ? "Continue with this route" : "Choose an option"}</button></div>
     </ScreenFrame>,
@@ -254,7 +244,7 @@ export default function HomePage() {
       </div>
       <div className="sticky-action"><button className="primary-button" onClick={goHome}>{reviewChoice === "pause" ? "Pause for next week" : reviewChoice === "adjust" ? "Adjust next week" : "Keep my boundary"}</button></div>
     </ScreenFrame>,
-  ], [availableSafe, boundary, choice, commitments, condition, feedback, other, paymentDone, planned, productRelevant, rent, reviewChoice, safeToUse, savingsActivated, spent, usedPercent]);
+  ], [availableSafe, boundary, choice, commitments, condition, creditActivated, feedback, other, paymentDone, planned, productRelevant, rent, reviewChoice, safeToUse, spent, usedPercent]);
 
   return (
     <main className="stage">
@@ -286,22 +276,22 @@ export default function HomePage() {
           <div className="sheet-handle" />
 
           {recommendationView === "detail" && <>
-            <div className="sheet-product-label"><span>Bank product</span><Landmark size={15} /></div>
-            <SheetTitle className="recommendation-title">Flexible Savings Space</SheetTitle>
-            <SheetDescription className="recommendation-description">Separate ₹2,000 from everyday spending while keeping it accessible.</SheetDescription>
+            <div className="sheet-product-label"><span>Credit line</span><CreditCard size={15} /></div>
+            <SheetTitle className="recommendation-title">Pace Card</SheetTitle>
+            <SheetDescription className="recommendation-description">A ₹2,000 buffer credit for this week, automatically settled from your next salary.</SheetDescription>
 
-            <section className="recommendation-lead"><h3>Why this appeared</h3><p>Your UPI spending has used {usedPercent}% of its weekly boundary while {WEEK_PROGRESS}% of the week has passed. Your commitments remain covered, so this suggestion focuses only on protecting part of your flexible money.</p></section>
-            <Accordion type="single" collapsible className="dark-accordion recommendation-calculation"><AccordionItem value="product-calculation"><AccordionTrigger>See calculation</AccordionTrigger><AccordionContent><p className="accordion-copy">Safe to use is {inr(availableBeforeProduct)} after commitments and planned savings. Separating {inr(PRODUCT_AMOUNT)} would leave {inr(productRemainingSafe)} for everyday use. Your UPI boundary stays {inr(boundary)}.</p></AccordionContent></AccordionItem></Accordion>
+            <section className="recommendation-lead"><h3>Why this appeared</h3><p>Your UPI spending has used {usedPercent}% of its weekly boundary while {WEEK_PROGRESS}% of the week has passed. Your commitments remain covered, so this suggestion offers a short-term credit buffer instead of cutting into money you’ve already planned.</p></section>
+            <Accordion type="single" collapsible className="dark-accordion recommendation-calculation"><AccordionItem value="product-calculation"><AccordionTrigger>See calculation</AccordionTrigger><AccordionContent><p className="accordion-copy">Safe to use is {inr(availableBeforeProduct)} this week. Activating Pace Card adds a {inr(PRODUCT_AMOUNT)} credit buffer, taking what you can spend to {inr(productRemainingSafe)}. Your UPI boundary stays {inr(boundary)}, and the {inr(PRODUCT_AMOUNT)} is repaid automatically when your next salary arrives.</p></AccordionContent></AccordionItem></Accordion>
 
             <div className="benefit-pair">
-              <section><h3>What you gain</h3><ul><li>₹2,000 becomes visually separate from everyday spending.</li><li>The money remains available if needed.</li><li>It can reduce unintentional spending.</li></ul></section>
-              <section><h3>How the bank gains</h3><ul><li>The money remains deposited with the bank.</li><li>The bank may benefit from holding and using customer deposits.</li><li>It supports use of the bank’s savings products.</li></ul></section>
+              <section><h3>What you gain</h3><ul><li>₹2,000 of extra spending room for this week.</li><li>No interest if repaid in full on your next salary date.</li><li>Nothing changes about how you already pay with UPI.</li></ul></section>
+              <section><h3>How the bank gains</h3><ul><li>Interest applies if the balance carries beyond the repayment date.</li><li>The bank earns interchange fees on card transactions.</li><li>It builds your usage history for future credit products.</li></ul></section>
             </div>
 
-            <section className="recommendation-section"><h3>Costs and limitations</h3><ul><li>Your immediately available amount decreases by ₹2,000.</li><li>The product does not prevent you from withdrawing the money.</li><li>Interest and terms must be reviewed before activation.</li><li>The outcome depends on how you use the product.</li></ul></section>
-            <section className="recommendation-section"><h3>Your other options</h3><ol><li>Slow UPI spending.</li><li>Adjust the boundary.</li><li>Leave ₹2,000 untouched manually.</li><li>Make no change.</li></ol></section>
+            <section className="recommendation-section"><h3>Costs and limitations</h3><ul><li>Unpaid balances after the due date start accruing interest.</li><li>Using the full buffer regularly can affect your credit utilization.</li><li>Approval depends on your existing credit eligibility.</li><li>The outcome depends on repaying it on time.</li></ul></section>
+            <section className="recommendation-section"><h3>Your other options</h3><ol><li>Slow UPI spending.</li><li>Adjust the boundary.</li><li>Wait for your next salary without extra credit.</li><li>Make no change.</li></ol></section>
 
-            <div className="recommendation-actions"><button className="primary-button" onClick={() => setRecommendationView("review")}>Review product details</button><button className="quiet-button" onClick={() => setRecommendationView(null)}>Not now</button><button className="text-button" onClick={() => { setRecommendationDismissed(true); setRecommendationView(null); }}>Don’t show this again</button></div>
+            <div className="recommendation-actions"><button className="primary-button" onClick={() => setRecommendationView("review")}>Review card terms</button><button className="quiet-button" onClick={() => setRecommendationView(null)}>Not now</button><button className="text-button" onClick={() => { setRecommendationDismissed(true); setRecommendationView(null); }}>Don’t show this again</button></div>
           </>}
 
           {recommendationView === "compare" && <>
@@ -312,31 +302,31 @@ export default function HomePage() {
               {[
                 { option: "Slow spending", effect: "Keeps the ₹6,000 boundary", access: "Fully accessible", product: false },
                 { option: "Adjust boundary", effect: "Changes the spending reference", access: "Fully accessible", product: false },
-                { option: "Leave ₹2,000 untouched", effect: "Depends on self-control", access: "Fully accessible", product: false },
-                { option: "Flexible Savings Space", effect: "Separates ₹2,000 from spending", access: "Still accessible", product: true },
+                { option: "Wait without credit", effect: "No extra buffer added", access: "Fully accessible", product: false },
+                { option: "Pace Card", effect: "Adds ₹2,000 credit for this week", access: "Repaid from next salary", product: true },
                 { option: "Make no change", effect: "No immediate change", access: "Fully accessible", product: false },
-              ].map((item) => <section className="comparison-row" key={item.option}><div><h3>{item.option}</h3><span>{item.product ? "Bank product" : "No bank product"}</span></div><dl><div><dt>Effect</dt><dd>{item.effect}</dd></div><div><dt>Access</dt><dd>{item.access}</dd></div></dl></section>)}
+              ].map((item) => <section className="comparison-row" key={item.option}><div><h3>{item.option}</h3><span>{item.product ? "Credit line" : "No credit line"}</span></div><dl><div><dt>Effect</dt><dd>{item.effect}</dd></div><div><dt>Access</dt><dd>{item.access}</dd></div></dl></section>)}
             </div>
             <div className="recommendation-actions"><button className="quiet-button" onClick={() => setRecommendationView("detail")}>See product details</button><button className="text-button" onClick={() => setRecommendationView(null)}>Back to my options</button></div>
           </>}
 
           {recommendationView === "review" && <>
-            <div className="sheet-product-label"><span>Review before confirming</span><Landmark size={15} /></div>
-            <SheetTitle className="recommendation-title">Flexible Savings Space</SheetTitle>
+            <div className="sheet-product-label"><span>Review before confirming</span><CreditCard size={15} /></div>
+            <SheetTitle className="recommendation-title">Pace Card</SheetTitle>
             <SheetDescription className="recommendation-description">Nothing is activated until you confirm.</SheetDescription>
-            <div className="review-amount"><span>Amount to separate</span><b>{inr(PRODUCT_AMOUNT)}</b><small>{inr(productRemainingSafe)} remains safe to use</small></div>
-            <dl className="review-details"><div><dt>Accessibility</dt><dd>Withdrawable when needed</dd></div><div><dt>Applicable terms</dt><dd>Review before activation</dd></div><div><dt>UPI</dt><dd>No change to how you pay</dd></div></dl>
-            <div className="benefit-pair review-benefits"><section><h3>Your benefit</h3><p>₹2,000 stays separate from everyday spending while remaining accessible.</p></section><section><h3>Bank benefit</h3><p>The bank retains the money in a savings product and may benefit from holding the deposit.</p></section></div>
-            <Accordion type="single" collapsible className="dark-accordion recommendation-calculation"><AccordionItem value="terms"><AccordionTrigger>Applicable interest and terms</AccordionTrigger><AccordionContent><p className="accordion-copy">The applicable interest and complete product terms should be provided by the bank for review before activation. This prototype does not state a rate or guarantee a return.</p></AccordionContent></AccordionItem></Accordion>
+            <div className="review-amount"><span>Credit added this week</span><b>{inr(PRODUCT_AMOUNT)}</b><small>{inr(productRemainingSafe)} available to spend this week</small></div>
+            <dl className="review-details"><div><dt>Repayment</dt><dd>Auto-settled from your next salary</dd></div><div><dt>Applicable terms</dt><dd>Review before activation</dd></div><div><dt>UPI</dt><dd>No change to how you pay</dd></div></dl>
+            <div className="benefit-pair review-benefits"><section><h3>Your benefit</h3><p>₹2,000 becomes available to spend this week, without touching your commitments.</p></section><section><h3>Bank benefit</h3><p>The bank earns interest only if you don’t repay in full by your next salary date.</p></section></div>
+            <Accordion type="single" collapsible className="dark-accordion recommendation-calculation"><AccordionItem value="terms"><AccordionTrigger>Applicable interest and terms</AccordionTrigger><AccordionContent><p className="accordion-copy">The applicable interest rate and complete card terms should be provided by the bank for review before activation. This prototype does not state an APR or guarantee approval.</p></AccordionContent></AccordionItem></Accordion>
             <p className="optional-note"><ShieldCheck size={16} />This is optional and does not affect your ability to use UPI.</p>
-            <div className="recommendation-actions"><button className="primary-button" onClick={() => { setSavingsActivated(true); setRecommendationView("confirmed"); }}>Confirm Flexible Savings Space</button><button className="text-button" onClick={() => setRecommendationView("detail")}>Go back</button></div>
+            <div className="recommendation-actions"><button className="primary-button" onClick={() => { setCreditActivated(true); setRecommendationView("confirmed"); }}>Activate Pace Card</button><button className="text-button" onClick={() => setRecommendationView("detail")}>Go back</button></div>
           </>}
 
           {recommendationView === "confirmed" && <div className="confirmation-state">
             <span className="confirmation-icon"><Check size={22} /></span>
-            <SheetTitle>₹2,000 is now separated</SheetTitle>
-            <SheetDescription>Flexible Savings Space is active. Your Money Weather stays {condition}, and {inr(availableSafe)} remains safe to use.</SheetDescription>
-            <div className="confirmation-summary"><span>Separated savings</span><b>{inr(PRODUCT_AMOUNT)}</b><small>Accessible if you need it</small></div>
+            <SheetTitle>₹2,000 credit is now active</SheetTitle>
+            <SheetDescription>Pace Card is active. Your Money Weather stays {condition}, and {inr(availableSafe)} is now available to spend this week.</SheetDescription>
+            <div className="confirmation-summary"><span>Credit added</span><b>{inr(PRODUCT_AMOUNT)}</b><small>Auto-repaid from your next salary</small></div>
             <button className="primary-button" onClick={() => { setRecommendationView(null); setScreen(3); }}>Back to Money Weather</button>
           </div>}
         </SheetContent>
